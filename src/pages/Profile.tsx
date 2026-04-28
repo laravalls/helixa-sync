@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { ChevronRight, Plug, Bell, Shield, Crown, LogOut, Settings as SettingsIcon } from "lucide-react";
 import { BottomNav } from "@/components/BottomNav";
+import { resetOnboarding } from "@/lib/onboardingCheck";
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -54,6 +55,19 @@ const Profile = () => {
           >
             <LogOut size={14} strokeWidth={1.5} />
             Sign out
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              if (confirm("Reset onboarding? This will clear your cycle data.")) {
+                resetOnboarding();
+                window.location.href = "/onboarding";
+              }
+            }}
+            className="w-full text-[11px] text-destructive/70 hover:text-destructive transition-colors py-2"
+          >
+            Reset onboarding
           </button>
         </section>
       </div>
