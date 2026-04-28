@@ -279,7 +279,11 @@ const Today = () => {
             >
               <Bell size={18} strokeWidth={1.5} />
             </button>
-            <button aria-label="Settings" className="hover:text-cream transition-colors">
+            <button
+              aria-label="Connections"
+              onClick={() => navigate("/connections")}
+              className="hover:text-cream transition-colors"
+            >
               <Settings size={18} strokeWidth={1.5} />
             </button>
           </div>
