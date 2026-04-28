@@ -369,7 +369,7 @@ const Connections = () => {
   const activeStatus = active ? getStatus(active) : null;
 
   return (
-    <main className="min-h-screen bg-background text-cream page-fade">
+    <main className="min-h-screen bg-background text-cream page-fade pb-24">
       {/* HEADER */}
       <header
         className={cn(
