@@ -256,3 +256,8 @@ body::before {
 .page-fade {
   animation: page-fade 300ms ease-out;
 }
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+}

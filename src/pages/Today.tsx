@@ -25,6 +25,7 @@ import {
 import { HormoneChart } from "@/components/HormoneChart";
 import { CycleRing } from "@/components/CycleRing";
 import { NotificationsPanel } from "@/components/NotificationsPanel";
+import { BottomNav } from "@/components/BottomNav";
 import { getUserCycle } from "@/lib/db";
 
 const CYCLE_DAY = 18;
@@ -249,7 +250,7 @@ const Today = () => {
   };
 
   return (
-    <main className="min-h-screen bg-background text-cream">
+    <main className="min-h-screen bg-background text-cream pb-24">
       <div className="mx-auto w-full max-w-[420px]">
         {/* HEADER */}
         <header
@@ -491,6 +492,7 @@ const Today = () => {
 
       {/* NOTIFICATIONS */}
       <NotificationsPanel open={alertsOpen} onOpenChange={setAlertsOpen} />
+      <BottomNav />
     </main>
   );
 };

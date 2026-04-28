@@ -253,7 +253,7 @@ export const RemindersSheet = ({ open, onOpenChange }: RemindersSheetProps) => {
                   onOpenChange(false);
                 }}
                 className="w-full h-12 rounded-full bg-gold text-black font-mono-data text-[11px] tracking-[0.32em] uppercase active:scale-[0.97] transition-transform"
-                style={{ boxShadow: "0 0 24px hsl(var(--gold) / 0.3)" }}
+                style={{ boxShadow: "0 0 24px rgba(232,193,111,0.3)" }}
               >
                 Save
               </button>

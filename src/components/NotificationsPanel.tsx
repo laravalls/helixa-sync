@@ -82,7 +82,7 @@ export const NotificationsPanel = ({
               className="w-full mb-5 bg-surface-1 rounded-2xl p-4 border border-white/[0.06] flex items-center gap-3 hover:border-accent-soft transition-colors text-left"
             >
               <div className="w-9 h-9 rounded-full border border-accent-soft flex items-center justify-center text-gold shrink-0"
-                style={{ boxShadow: "0 0 24px hsl(var(--gold) / 0.3)" }}
+                style={{ boxShadow: "0 0 24px rgba(232,193,111,0.3)" }}
               >
                 <BellRing size={16} strokeWidth={1.5} />
               </div>

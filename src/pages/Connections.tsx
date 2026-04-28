@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/sheet";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
+import { BottomNav } from "@/components/BottomNav";
 import { cn } from "@/lib/utils";
 
 type Status = "connected" | "available" | "premium";
@@ -369,7 +370,7 @@ const Connections = () => {
   const activeStatus = active ? getStatus(active) : null;
 
   return (
-    <main className="min-h-screen bg-background text-cream page-fade">
+    <main className="min-h-screen bg-background text-cream page-fade pb-24">
       {/* HEADER */}
       <header
         className={cn(
@@ -761,6 +762,7 @@ const Connections = () => {
           </div>
         </SheetContent>
       </Sheet>
+      <BottomNav />
     </main>
   );
 };

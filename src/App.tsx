@@ -11,6 +11,8 @@ import StackDetail from "./pages/StackDetail.tsx";
 import RecoveryDetail from "./pages/RecoveryDetail.tsx";
 import Onboarding from "./pages/Onboarding.tsx";
 import Connections from "./pages/Connections.tsx";
+import Research from "./pages/Research.tsx";
+import Profile from "./pages/Profile.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -29,6 +31,8 @@ const App = () => (
           <Route path="/stack" element={<StackDetail />} />
           <Route path="/recovery" element={<RecoveryDetail />} />
           <Route path="/connections" element={<Connections />} />
+          <Route path="/research" element={<Research />} />
+          <Route path="/profile" element={<Profile />} />
           <Route path="/styleguide" element={<Index />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
