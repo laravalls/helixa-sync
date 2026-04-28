@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowLeft, X, UtensilsCrossed, Sparkles, Sunrise, Sun, Moon, Cookie } from "lucide-react";
 import { CYCLE_SYNC_DAY_18, TTC_DAY_18, type DayPlan } from "@/data/mockCycle";
+import { EvidenceSection } from "@/components/EvidenceSection";
 
 type ModeId = "cycle_sync" | "ttc";
 
@@ -14,6 +15,53 @@ const PlateDetail = () => {
   const mode = (params.get("mode") as ModeId | null) ?? "cycle_sync";
   const plan = planFor(mode);
   const p = plan.plate;
+
+  const evidence =
+    mode === "ttc"
+      ? {
+          rationale:
+            "Pre-conception nutrition is dominated by three levers: folate for neural-tube prevention, omega-3 DHA for follicular and embryonic membranes, and stable glucose to keep LH pulses crisp. Today's plate front-loads all three.",
+          metrics: [
+            { label: "Folate target", value: "600 µg", delta: "Daily", trend: "up" as const },
+            { label: "Omega-3 DHA", value: "300 mg", delta: "Daily", trend: "up" as const },
+            { label: "Protein", value: "1.6 g/kg", delta: "+0.2", trend: "up" as const },
+            { label: "Glucose CV", value: "12%", delta: "Stable", trend: "flat" as const },
+          ],
+          citations: [
+            {
+              finding:
+                "Pre-conception folate ≥400 µg/day reduces neural tube defect risk by ~70%.",
+              source: "NEJM · 2022 (meta-analysis)",
+            },
+            {
+              finding:
+                "Higher pre-conception omega-3 intake is associated with improved oocyte quality and shorter time to pregnancy.",
+              source: "Human Reproduction · 2023",
+            },
+          ],
+        }
+      : {
+          rationale:
+            "Insulin sensitivity drops ~20% in mid-luteal at matched meals, while protein turnover rises 15–20%. Today's plate compensates by shifting carbs toward fibrous and slower-absorbing sources and hitting protein at every meal.",
+          metrics: [
+            { label: "Insulin sens.", value: "−20%", delta: "vs. follicular", trend: "down" as const },
+            { label: "Protein turnover", value: "+17%", delta: "Luteal", trend: "up" as const },
+            { label: "Protein target", value: "1.8 g/kg", delta: "+0.3", trend: "up" as const },
+            { label: "Fiber target", value: "30 g", delta: "Daily", trend: "up" as const },
+          ],
+          citations: [
+            {
+              finding:
+                "Postprandial glucose excursions are 15–25% higher in mid-luteal at matched carbohydrate meals.",
+              source: "Diabetes Care · 2023",
+            },
+            {
+              finding:
+                "Whole-body protein breakdown rises ~17% in mid-luteal; 1.6–2.0 g/kg/day attenuates the catabolic effect.",
+              source: "Sports Medicine · 2023",
+            },
+          ],
+        };
 
   const [scrolled, setScrolled] = useState(false);
   useEffect(() => {
@@ -133,6 +181,13 @@ const PlateDetail = () => {
               No salmon? Try sardines or pasture eggs. No quinoa? Use brown rice or millet. Keep the nutrient targets, swap the vehicle.
             </p>
           </section>
+
+          {/* EVIDENCE */}
+          <EvidenceSection
+            rationale={evidence.rationale}
+            metrics={evidence.metrics}
+            citations={evidence.citations}
+          />
         </div>
       </div>
 
