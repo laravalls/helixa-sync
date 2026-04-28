@@ -46,8 +46,8 @@ interface ModeDef {
 }
 
 const MODES: ModeDef[] = [
-  { id: "cycle_sync", label: "Cycle Sync", locked: false },
   { id: "ttc", label: "TTC", locked: false },
+  { id: "cycle_sync", label: "Cycle Sync", locked: false },
   {
     id: "pregnancy",
     label: "Pregnancy",
@@ -210,7 +210,7 @@ const DataCard = ({ label, metric, description, icon, onClick }: DataCardProps) 
 const Today = () => {
   const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
-  const [activeMode, setActiveMode] = useState<ModeId>("cycle_sync");
+  const [activeMode, setActiveMode] = useState<ModeId>("ttc");
   const [lockedSheet, setLockedSheet] = useState<ModeDef | null>(null);
   const [alertsOpen, setAlertsOpen] = useState(false);
 
