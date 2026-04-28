@@ -25,6 +25,7 @@ import {
 import { HormoneChart } from "@/components/HormoneChart";
 import { CycleRing } from "@/components/CycleRing";
 import { NotificationsPanel } from "@/components/NotificationsPanel";
+import { getUserCycle } from "@/lib/db";
 
 const CYCLE_DAY = 18;
 const CYCLE_LENGTH = 28;
@@ -211,6 +212,20 @@ const Today = () => {
   const [activeMode, setActiveMode] = useState<ModeId>("cycle_sync");
   const [lockedSheet, setLockedSheet] = useState<ModeDef | null>(null);
   const [alertsOpen, setAlertsOpen] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const existing = await getUserCycle();
+      if (cancelled) return;
+      if (!existing || !existing.last_period_date) {
+        navigate("/onboarding", { replace: true });
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [navigate]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
