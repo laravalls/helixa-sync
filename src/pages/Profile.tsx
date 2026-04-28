@@ -24,7 +24,7 @@ const Profile = () => {
         <section className="px-5 pt-8 pb-6 flex flex-col items-center text-center">
           <div
             className="w-20 h-20 rounded-full border border-accent-soft flex items-center justify-center text-gold"
-            style={{ boxShadow: "0 0 24px hsl(var(--gold) / 0.3)" }}
+            style={{ boxShadow: "0 0 24px rgba(232,193,111,0.3)" }}
           >
             <span className="font-mono-data text-2xl">H</span>
           </div>

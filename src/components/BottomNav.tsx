@@ -30,7 +30,7 @@ export const BottomNav = () => {
                   }
                   style={({ isActive }) =>
                     isActive
-                      ? { filter: "drop-shadow(0 0 12px hsl(var(--gold) / 0.4))" }
+                      ? { filter: "drop-shadow(0 0 12px rgba(232,193,111,0.4))" }
                       : undefined
                   }
                 >

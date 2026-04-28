@@ -406,7 +406,7 @@ const Research = () => {
               className="w-full text-left bg-surface-2 rounded-2xl p-5 border border-white/[0.06] relative overflow-hidden hover:border-accent-soft transition-colors"
               style={{
                 borderLeft: "3px solid hsl(var(--gold))",
-                boxShadow: "0 0 24px hsl(var(--gold) / 0.18)",
+                boxShadow: "0 0 24px rgba(232,193,111,0.18)",
               }}
             >
               <div className="flex items-start justify-between gap-3 mb-3">
@@ -682,7 +682,7 @@ const Research = () => {
                   style={{
                     fontSize: 11,
                     letterSpacing: "0.32em",
-                    boxShadow: "0 0 24px hsl(var(--gold) / 0.3)",
+                    boxShadow: "0 0 24px rgba(232,193,111,0.3)",
                   }}
                 >
                   Read full study
