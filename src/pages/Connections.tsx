@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/sheet";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
+import { BottomNav } from "@/components/BottomNav";
 import { cn } from "@/lib/utils";
 
 type Status = "connected" | "available" | "premium";
@@ -761,6 +762,7 @@ const Connections = () => {
           </div>
         </SheetContent>
       </Sheet>
+      <BottomNav />
     </main>
   );
 };
