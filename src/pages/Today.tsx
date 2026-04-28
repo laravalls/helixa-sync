@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Bell,
   Settings,
@@ -9,21 +9,78 @@ import {
   Pill,
   Moon,
 } from "lucide-react";
-import { CYCLE_SYNC_DAY_18, WEARABLE_DATA } from "@/data/mockCycle";
+import {
+  CYCLE_SYNC_DAY_18,
+  TTC_DAY_18,
+  WEARABLE_DATA,
+  type DayPlan,
+} from "@/data/mockCycle";
+import {
+  Sheet,
+  SheetContent,
+  SheetTitle,
+  SheetDescription,
+} from "@/components/ui/sheet";
 
-const PHASE_COLOR = "#A088B5"; // Luteal
 const CYCLE_DAY = 18;
 const CYCLE_LENGTH = 28;
 
-const MODES = [
-  { id: "cycle", label: "Cycle Sync", active: true, locked: false },
-  { id: "ttc", label: "TTC", active: false, locked: false },
-  { id: "pregnancy", label: "Pregnancy", active: false, locked: true },
-  { id: "postpartum", label: "Postpartum", active: false, locked: true },
-  { id: "peri", label: "Perimenopause", active: false, locked: true },
+type ModeId =
+  | "cycle_sync"
+  | "ttc"
+  | "pregnancy"
+  | "postpartum"
+  | "perimenopause";
+
+interface ModeDef {
+  id: ModeId;
+  label: string;
+  locked: boolean;
+  teaser?: string;
+}
+
+const MODES: ModeDef[] = [
+  { id: "cycle_sync", label: "Cycle Sync", locked: false },
+  { id: "ttc", label: "TTC", locked: false },
+  {
+    id: "pregnancy",
+    label: "Pregnancy",
+    locked: true,
+    teaser:
+      "Trimester-aware movement, plate, and supplementation. Daily fetal-development context, contraindication checks on every recommendation, and a recovery surface tuned for the body that's growing another one.",
+  },
+  {
+    id: "postpartum",
+    label: "Postpartum",
+    locked: true,
+    teaser:
+      "A non-bounce-back recovery layer. Pelvic floor and core re-coordination, lactation-aware nutrition, and sleep architecture rebuilt around feeds. Hormone shifts tracked with the same precision as the cycle.",
+  },
+  {
+    id: "perimenopause",
+    label: "Perimenopause",
+    locked: true,
+    teaser:
+      "Variable-cycle intelligence for the years your rhythm starts to drift. HRT-aware protocols, bone and metabolic protection, and symptom pattern detection that respects how non-linear this phase actually is.",
+  },
 ];
 
-const HeroRing = () => {
+const PLAN_BY_MODE: Partial<Record<ModeId, DayPlan>> = {
+  cycle_sync: CYCLE_SYNC_DAY_18,
+  ttc: TTC_DAY_18,
+};
+
+const COLOR_BY_MODE: Record<"cycle_sync" | "ttc", string> = {
+  cycle_sync: "#A088B5", // Luteal
+  ttc: "#E8C16F", // Bioluminescent gold
+};
+
+interface HeroRingProps {
+  color: string;
+  phaseLabel: string;
+}
+
+const HeroRing = ({ color, phaseLabel }: HeroRingProps) => {
   const size = 240;
   const stroke = 12;
   const radius = (size - stroke) / 2;
@@ -48,8 +105,9 @@ const HeroRing = () => {
         aria-hidden
         className="absolute inset-0 rounded-full"
         style={{
-          background: `radial-gradient(closest-side, ${PHASE_COLOR}33, ${PHASE_COLOR}00 70%)`,
+          background: `radial-gradient(closest-side, ${color}33, ${color}00 70%)`,
           filter: "blur(8px)",
+          transition: "background 600ms ease",
         }}
       />
       <svg
@@ -57,7 +115,8 @@ const HeroRing = () => {
         height={size}
         className="relative -rotate-90"
         style={{
-          filter: `drop-shadow(0 0 24px ${PHASE_COLOR}4D)`,
+          filter: `drop-shadow(0 0 24px ${color}4D)`,
+          transition: "filter 600ms ease",
         }}
       >
         <circle
@@ -73,14 +132,14 @@ const HeroRing = () => {
           cy={size / 2}
           r={radius}
           fill="none"
-          stroke={PHASE_COLOR}
+          stroke={color}
           strokeWidth={stroke}
           strokeLinecap="round"
           strokeDasharray={circumference}
           strokeDashoffset={dashOffset}
           style={{
             transition:
-              "stroke-dashoffset 1600ms cubic-bezier(.2,.7,.2,1)",
+              "stroke-dashoffset 1600ms cubic-bezier(.2,.7,.2,1), stroke 600ms ease",
           }}
         />
       </svg>
@@ -94,8 +153,12 @@ const HeroRing = () => {
         <span className="font-mono-data text-[10px] tracking-[0.4em] uppercase text-secondary-dim mt-2">
           Day
         </span>
-        <span className="font-light text-base text-cream mt-3 tracking-wide">
-          {CYCLE_SYNC_DAY_18.phase_label}
+        <span
+          key={phaseLabel}
+          className="font-light text-base text-cream mt-3 tracking-wide animate-fade-in"
+          style={{ animationDuration: "400ms" }}
+        >
+          {phaseLabel}
         </span>
       </div>
     </div>
@@ -138,6 +201,8 @@ const DataCard = ({ label, metric, description, icon }: DataCardProps) => (
 
 const Today = () => {
   const [scrolled, setScrolled] = useState(false);
+  const [activeMode, setActiveMode] = useState<ModeId>("cycle_sync");
+  const [lockedSheet, setLockedSheet] = useState<ModeDef | null>(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -145,7 +210,20 @@ const Today = () => {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const data = CYCLE_SYNC_DAY_18;
+  const data = useMemo<DayPlan>(
+    () => PLAN_BY_MODE[activeMode] ?? CYCLE_SYNC_DAY_18,
+    [activeMode],
+  );
+  const ringColor =
+    activeMode === "ttc" ? COLOR_BY_MODE.ttc : COLOR_BY_MODE.cycle_sync;
+
+  const handleModeTap = (mode: ModeDef) => {
+    if (mode.locked) {
+      setLockedSheet(mode);
+      return;
+    }
+    setActiveMode(mode.id);
+  };
 
   return (
     <main className="min-h-screen bg-background text-cream">
@@ -183,9 +261,13 @@ const Today = () => {
         <div className="px-5 pb-20 space-y-8">
           {/* HERO RING */}
           <section className="pt-8 flex flex-col items-center">
-            <HeroRing />
+            <HeroRing color={ringColor} phaseLabel={data.phase_label} />
 
-            <p className="text-secondary-dim text-sm text-center mt-8 max-w-[320px] leading-relaxed">
+            <p
+              key={`summary-${activeMode}`}
+              className="text-secondary-dim text-sm text-center mt-8 max-w-[320px] leading-relaxed animate-fade-in"
+              style={{ animationDuration: "400ms" }}
+            >
               {data.phase_summary}
             </p>
 
@@ -215,10 +297,12 @@ const Today = () => {
           <section className="-mx-5 px-5 overflow-x-auto scrollbar-none">
             <div className="flex items-center gap-2 min-w-max pb-1">
               {MODES.map((m) => {
-                if (m.active) {
+                const isActive = !m.locked && m.id === activeMode;
+                if (isActive) {
                   return (
                     <button
                       key={m.id}
+                      onClick={() => handleModeTap(m)}
                       className="font-mono-data text-[11px] tracking-[0.18em] uppercase px-4 py-2 rounded-full bg-gold text-black shadow-halo-gold-strong"
                     >
                       {m.label}
@@ -229,8 +313,8 @@ const Today = () => {
                   return (
                     <button
                       key={m.id}
-                      disabled
-                      className="font-mono-data text-[11px] tracking-[0.18em] uppercase px-4 py-2 rounded-full border border-dashed border-white/10 text-cream opacity-40 flex items-center gap-1.5"
+                      onClick={() => handleModeTap(m)}
+                      className="font-mono-data text-[11px] tracking-[0.18em] uppercase px-4 py-2 rounded-full border border-dashed border-white/10 text-cream opacity-40 flex items-center gap-1.5 hover:opacity-60 transition-opacity"
                     >
                       <Lock size={11} strokeWidth={1.5} />
                       {m.label}
@@ -240,6 +324,7 @@ const Today = () => {
                 return (
                   <button
                     key={m.id}
+                    onClick={() => handleModeTap(m)}
                     className="font-mono-data text-[11px] tracking-[0.18em] uppercase px-4 py-2 rounded-full border border-white/[0.08] text-cream hover:border-accent-soft transition-colors"
                   >
                     {m.label}
@@ -251,8 +336,9 @@ const Today = () => {
 
           {/* ALERT */}
           <section
+            key={`alert-${activeMode}`}
             className="bg-surface-1 rounded-2xl p-5 border border-white/[0.06]"
-            style={{ borderLeft: "2px solid #E07856" }}
+            style={{ borderLeft: "2px solid #E07856", animationDuration: "400ms" }}
           >
             <div
               className="font-mono-data text-[10px] tracking-[0.32em] uppercase mb-2"
@@ -276,16 +362,20 @@ const Today = () => {
                 Chart · Prompt 5
               </span>
             </div>
-            <p className="text-xs text-secondary-dim mt-4 leading-relaxed">
+            <p
+              key={`hormone-${activeMode}`}
+              className="text-xs text-secondary-dim mt-4 leading-relaxed animate-fade-in"
+              style={{ animationDuration: "400ms" }}
+            >
               {data.hormone_readout}
             </p>
           </section>
 
           {/* DATA CARDS */}
-          <section className="space-y-3">
+          <section key={`cards-${activeMode}`} className="space-y-3 animate-fade-in" style={{ animationDuration: "400ms" }}>
             <DataCard
               label="Movement"
-              metric="25 MIN"
+              metric={`${data.movement.duration_min} MIN`}
               description={data.movement.name}
               icon={<Activity size={18} strokeWidth={1.5} />}
             />
@@ -325,6 +415,55 @@ const Today = () => {
           </section>
         </div>
       </div>
+
+      {/* LOCKED MODE SHEET */}
+      <Sheet
+        open={lockedSheet !== null}
+        onOpenChange={(open) => !open && setLockedSheet(null)}
+      >
+        <SheetContent
+          side="bottom"
+          className="bg-background border-t border-white/[0.06] p-0 max-h-[92vh] overflow-y-auto"
+        >
+          {lockedSheet && (
+            <div className="mx-auto w-full max-w-[420px] px-6 pt-8 pb-10">
+              <div
+                aria-hidden
+                className="mx-auto mb-8 h-1 w-10 rounded-full bg-white/10"
+              />
+              <SheetTitle asChild>
+                <h2 className="font-light text-4xl tracking-tight text-cream">
+                  {lockedSheet.label}
+                </h2>
+              </SheetTitle>
+              <div className="font-mono-data text-[10px] tracking-[0.32em] uppercase text-gold mt-3">
+                Available Q3 2026
+              </div>
+              <SheetDescription asChild>
+                <p className="text-secondary-dim text-sm leading-relaxed mt-6">
+                  {lockedSheet.teaser}
+                </p>
+              </SheetDescription>
+
+              <div
+                className="mt-8 rounded-2xl border border-white/[0.06] bg-surface-1 flex items-center justify-center"
+                style={{ height: 200 }}
+              >
+                <span className="font-mono-data text-[10px] tracking-[0.32em] uppercase text-tertiary-dim">
+                  Preview
+                </span>
+              </div>
+
+              <button
+                type="button"
+                className="mt-8 w-full font-mono-data text-[11px] tracking-[0.32em] uppercase text-gold border border-accent-soft rounded-full py-4 hover:shadow-halo-gold transition-shadow duration-400"
+              >
+                Notify me
+              </button>
+            </div>
+          )}
+        </SheetContent>
+      </Sheet>
     </main>
   );
 };
