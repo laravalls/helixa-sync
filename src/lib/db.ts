@@ -94,12 +94,14 @@ export const savePlan = async (
 
   try {
     const { error } = await supabase.from("cached_plans").upsert(
-      {
-        device_id,
-        cycle_day: cycleDay,
-        mode,
-        plan_json: plan as unknown as Record<string, unknown>,
-      },
+      [
+        {
+          device_id,
+          cycle_day: cycleDay,
+          mode,
+          plan_json: plan as unknown as Record<string, unknown>,
+        },
+      ],
       { onConflict: "device_id,cycle_day,mode" },
     );
     if (error) console.warn("[db] savePlan remote failed:", error.message);
