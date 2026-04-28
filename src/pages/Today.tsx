@@ -118,7 +118,7 @@ const HeroRing = ({ color, phaseLabel }: HeroRingProps) => {
       <svg
         width={size}
         height={size}
-        className="relative -rotate-90"
+        className="relative -rotate-90 animate-breath"
         style={{
           filter: `drop-shadow(0 0 24px ${color}4D)`,
           transition: "filter 600ms ease",
@@ -306,7 +306,7 @@ const Today = () => {
                   style={{ animationDuration: "2s" }}
                 />
                 <span
-                  className="relative w-2 h-2 rounded-full bg-gold"
+                  className="relative w-2 h-2 rounded-full bg-gold animate-breath-dot"
                   style={{ boxShadow: "0 0 10px rgba(232,193,111,0.7)" }}
                 />
               </span>
