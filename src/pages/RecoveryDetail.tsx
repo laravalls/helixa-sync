@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowLeft, X, Moon, Wind, Coffee, Bed, Bell } from "lucide-react";
 import { CYCLE_SYNC_DAY_18, TTC_DAY_18, type DayPlan } from "@/data/mockCycle";
+import { EvidenceSection } from "@/components/EvidenceSection";
 
 type ModeId = "cycle_sync" | "ttc";
 
@@ -15,6 +16,53 @@ const RecoveryDetail = () => {
   const plan = planFor(mode);
   const r = plan.recovery;
   const practice = plan.practice;
+
+  const evidence =
+    mode === "ttc"
+      ? {
+          rationale:
+            "Sleep is upstream of every fertility metric. Sub-7-hour nights blunt LH amplitude and lower implantation odds. Tonight's wind-down protects deep sleep where GnRH pulses regulate.",
+          metrics: [
+            { label: "Sleep target", value: `${r.sleep_target_h} h`, delta: "Tonight", trend: "up" as const },
+            { label: "HRV (RMSSD)", value: "48 ms", delta: "−12%", trend: "down" as const },
+            { label: "Resting HR", value: "62 bpm", delta: "+3", trend: "down" as const },
+            { label: "Sleep eff.", value: "89%", delta: "Target 90%", trend: "flat" as const },
+          ],
+          citations: [
+            {
+              finding:
+                "Women sleeping <7h/night had ~15% lower odds of implantation per IVF cycle vs. 7–9h.",
+              source: "Fertility & Sterility · 2023",
+            },
+            {
+              finding:
+                "Sleep restriction acutely lowers LH pulse amplitude and prolongs follicular phase length.",
+              source: "Journal of Clinical Endocrinology & Metabolism · 2022",
+            },
+          ],
+        }
+      : {
+          rationale:
+            "Late-luteal sleep is biologically harder: progesterone raises core temperature ~0.3 °C, fragmenting deep sleep. Cooling, dim light, and wind-down breathing measurably restore architecture.",
+          metrics: [
+            { label: "Sleep target", value: `${r.sleep_target_h} h`, delta: "Tonight", trend: "up" as const },
+            { label: "Core temp", value: "+0.3 °C", delta: "Luteal", trend: "down" as const },
+            { label: "HRV (RMSSD)", value: "48 ms", delta: "−12%", trend: "down" as const },
+            { label: "Sleep eff.", value: "84%", delta: "−6%", trend: "down" as const },
+          ],
+          citations: [
+            {
+              finding:
+                "Sleep efficiency drops 3–6% in the 5 days pre-period; bedroom cooling to 18 °C restores it in trials.",
+              source: "Frontiers in Physiology · 2024",
+            },
+            {
+              finding:
+                "Slow-paced breathing (4–6 breaths/min) raises HRV by 15–25% within a single 10-min session.",
+              source: "Applied Psychophysiology and Biofeedback · 2023",
+            },
+          ],
+        };
 
   const [scrolled, setScrolled] = useState(false);
   useEffect(() => {
@@ -125,6 +173,13 @@ const RecoveryDetail = () => {
             </div>
             <p className="text-sm text-secondary-dim leading-relaxed mt-4">{practice.script}</p>
           </section>
+
+          {/* EVIDENCE */}
+          <EvidenceSection
+            rationale={evidence.rationale}
+            metrics={evidence.metrics}
+            citations={evidence.citations}
+          />
         </div>
       </div>
 

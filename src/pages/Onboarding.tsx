@@ -41,8 +41,8 @@ interface ModeCard {
 }
 
 const MODE_CARDS: ModeCard[] = [
-  { id: "cycle_sync", name: "Cycle Sync", description: "Optimize workouts, nutrition, and recovery across 28 days.", available: true },
   { id: "ttc", name: "Trying to Conceive", description: "Conception windows, implantation guidance, partner mode.", available: true },
+  { id: "cycle_sync", name: "Cycle Sync", description: "Optimize workouts, nutrition, and recovery across 28 days.", available: true },
   { id: "pcos", name: "PCOS Management", description: "Irregular cycles, insulin resistance, symptom tracking, acne flares.", available: false },
   { id: "acne", name: "Acne Control", description: "Track flares by phase, targeted supplement stacks, skin barrier support.", available: false },
   { id: "pregnancy", name: "Pregnancy", description: "Trimester-specific guidance, symptom tracking, prep for postpartum.", available: false },

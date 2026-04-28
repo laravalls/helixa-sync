@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowLeft, X, Pill, Clock, ShoppingBag } from "lucide-react";
 import { CYCLE_SYNC_DAY_18, TTC_DAY_18, type DayPlan } from "@/data/mockCycle";
+import { EvidenceSection } from "@/components/EvidenceSection";
 
 type ModeId = "cycle_sync" | "ttc";
 
@@ -14,6 +15,53 @@ const StackDetail = () => {
   const mode = (params.get("mode") as ModeId | null) ?? "cycle_sync";
   const plan = planFor(mode);
   const stack = plan.stack;
+
+  const evidence =
+    mode === "ttc"
+      ? {
+          rationale:
+            "Pre-conception stacks should hit three jobs: methylation (active folate), oocyte mitochondrial function (CoQ10, omega-3) and luteal support (B6, magnesium). Doses below reflect well-tolerated ranges in fertility cohorts.",
+          metrics: [
+            { label: "Vitamin D (25-OH)", value: "42 ng/mL", delta: "Optimal", trend: "up" as const },
+            { label: "Ferritin", value: "58 ng/mL", delta: "Healthy", trend: "up" as const },
+            { label: "TSH", value: "1.8 mIU/L", delta: "Fertility OK", trend: "flat" as const },
+            { label: "Homocysteine", value: "7.2 µmol/L", delta: "Low", trend: "up" as const },
+          ],
+          citations: [
+            {
+              finding:
+                "Methylfolate (5-MTHF) is preferred over folic acid in MTHFR variants and improves red-cell folate more reliably.",
+              source: "Reproductive BioMedicine Online · 2022",
+            },
+            {
+              finding:
+                "CoQ10 600 mg/day for 3+ months improved ovarian response and oocyte quality in DOR patients.",
+              source: "Fertility & Sterility · 2023",
+            },
+          ],
+        }
+      : {
+          rationale:
+            "Late-luteal physiology raises serotonin demand, magnesium need, and inflammatory load. This stack targets the three measurable bottlenecks: low magnesium status, vitamin-D-driven mood/PMS modulation, and omega-3 anti-inflammatory effect.",
+          metrics: [
+            { label: "Vitamin D (25-OH)", value: "38 ng/mL", delta: "Sufficient", trend: "up" as const },
+            { label: "RBC Magnesium", value: "5.4 mg/dL", delta: "Mid-range", trend: "flat" as const },
+            { label: "hs-CRP", value: "1.1 mg/L", delta: "Low", trend: "up" as const },
+            { label: "Omega-3 Index", value: "6.4%", delta: "Target 8%", trend: "down" as const },
+          ],
+          citations: [
+            {
+              finding:
+                "Magnesium supplementation reduced PMS symptom severity scores by ~34% in randomized trials.",
+              source: "Journal of Women's Health · 2023",
+            },
+            {
+              finding:
+                "Vitamin D ≥30 ng/mL is associated with significantly lower premenstrual symptom prevalence.",
+              source: "Nutrients · 2024",
+            },
+          ],
+        };
 
   const [scrolled, setScrolled] = useState(false);
   useEffect(() => {
@@ -109,6 +157,13 @@ const StackDetail = () => {
               <li>• Iron and calcium compete — separate by 2 hours if both are in your stack.</li>
             </ul>
           </section>
+
+          {/* EVIDENCE */}
+          <EvidenceSection
+            rationale={evidence.rationale}
+            metrics={evidence.metrics}
+            citations={evidence.citations}
+          />
         </div>
       </div>
 
