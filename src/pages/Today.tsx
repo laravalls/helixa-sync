@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Bell,
   Settings,
@@ -172,11 +173,13 @@ interface DataCardProps {
   metric: string;
   description: string;
   icon: React.ReactNode;
+  onClick?: () => void;
 }
 
-const DataCard = ({ label, metric, description, icon }: DataCardProps) => (
+const DataCard = ({ label, metric, description, icon, onClick }: DataCardProps) => (
   <button
     type="button"
+    onClick={onClick}
     className="w-full text-left bg-surface-1 border border-white/[0.06] rounded-2xl p-5 flex items-center gap-4 hover:border-accent-soft transition-colors duration-400"
   >
     <div className="w-10 h-10 rounded-full border border-white/[0.06] flex items-center justify-center text-secondary-dim shrink-0">
@@ -202,6 +205,7 @@ const DataCard = ({ label, metric, description, icon }: DataCardProps) => (
 );
 
 const Today = () => {
+  const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
   const [activeMode, setActiveMode] = useState<ModeId>("cycle_sync");
   const [lockedSheet, setLockedSheet] = useState<ModeDef | null>(null);
@@ -375,6 +379,7 @@ const Today = () => {
               metric={`${data.movement.duration_min} MIN`}
               description={data.movement.name}
               icon={<Activity size={18} strokeWidth={1.5} />}
+              onClick={() => navigate(`/movement?mode=${activeMode}`)}
             />
             <DataCard
               label="Plate"
