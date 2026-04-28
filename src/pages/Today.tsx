@@ -410,18 +410,21 @@ const Today = () => {
               metric="4 MEALS"
               description={data.plate.key_nutrients.join(" · ")}
               icon={<UtensilsCrossed size={18} strokeWidth={1.5} />}
+              onClick={() => navigate(`/plate?mode=${activeMode}`)}
             />
             <DataCard
               label="Stack"
               metric={`${data.stack.length} SUPPS`}
               description={data.stack.map((s) => s.name).join(", ")}
               icon={<Pill size={18} strokeWidth={1.5} />}
+              onClick={() => navigate(`/stack?mode=${activeMode}`)}
             />
             <DataCard
               label="Recovery"
               metric={`${data.recovery.sleep_target_h} HRS`}
               description={`Wind down by ${data.recovery.wind_down_time}`}
               icon={<Moon size={18} strokeWidth={1.5} />}
+              onClick={() => navigate(`/recovery?mode=${activeMode}`)}
             />
           </section>
 
