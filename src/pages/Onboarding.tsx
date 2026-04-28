@@ -23,6 +23,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { saveUserCycle, getUserCycle } from "@/lib/db";
+import { saveCycleData, hasCompletedOnboarding } from "@/lib/onboardingCheck";
 import { useToast } from "@/hooks/use-toast";
 
 type Mode =
@@ -93,9 +94,16 @@ const Onboarding = () => {
   useEffect(() => {
     let cancelled = false;
     (async () => {
+      // localStorage source of truth for the guard
+      if (hasCompletedOnboarding()) {
+        navigate("/", { replace: true });
+        return;
+      }
       const existing = await getUserCycle();
       if (cancelled) return;
       if (existing && existing.last_period_date) {
+        // Backfill localStorage from remote so guard agrees
+        saveCycleData(existing.last_period_date, existing.cycle_length ?? 28, existing.active_mode ?? "ttc");
         navigate("/", { replace: true });
       } else {
         setChecking(false);
@@ -158,11 +166,13 @@ const Onboarding = () => {
     if (!selectedMode) return;
     setSubmitting(true);
     try {
+      const lastPeriodStr = format(lastPeriod, "yyyy-MM-dd");
       await saveUserCycle({
-        last_period_date: format(lastPeriod, "yyyy-MM-dd"),
+        last_period_date: lastPeriodStr,
         cycle_length: cycleLength,
         active_mode: selectedMode,
       });
+      saveCycleData(lastPeriodStr, cycleLength, selectedMode);
       navigate("/", { replace: true });
     } finally {
       setSubmitting(false);
