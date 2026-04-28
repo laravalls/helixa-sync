@@ -165,4 +165,12 @@ All colors MUST be HSL.
   .animate-ring-trace {
     animation: ring-trace 1400ms cubic-bezier(.2,.7,.2,1) forwards;
   }
+
+  @keyframes pulse-slow {
+    0%, 100% { opacity: 0.35; transform: scale(1); }
+    50%      { opacity: 0.85; transform: scale(1.06); }
+  }
+  .animate-pulse-slow {
+    animation: pulse-slow 3s ease-in-out infinite;
+  }
 }
