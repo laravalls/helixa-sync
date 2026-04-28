@@ -314,10 +314,7 @@ const Today = () => {
                 className="font-mono-data uppercase text-cream"
                 style={{ fontSize: 12, letterSpacing: "0.05em" }}
               >
-                {WEARABLE_DATA.device
-                  ? `${WEARABLE_DATA.device} · `
-                  : "Wearable · "}
-                HRV {WEARABLE_DATA.hrv} · RECOVERY {WEARABLE_DATA.recovery_score}
+                Wearable device data · HRV {WEARABLE_DATA.hrv} · RECOVERY {WEARABLE_DATA.recovery_score}
               </span>
             </div>
           </section>
