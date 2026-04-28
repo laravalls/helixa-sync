@@ -13,12 +13,33 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'monospace'],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
+        surface: {
+          1: "hsl(var(--surface-1))",
+          2: "hsl(var(--surface-2))",
+        },
+        cream: "#F2EDE4",
+        gold: {
+          DEFAULT: "#E8C16F",
+          glow: "rgba(232,193,111,0.40)",
+          soft: "rgba(232,193,111,0.20)",
+        },
+        critical: "#E07856",
+        phase: {
+          menstrual: "#9F2D3F",
+          follicular: "#6BBE8E",
+          ovulatory: "#E8C16F",
+          luteal: "#A088B5",
+        },
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
@@ -57,6 +78,10 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+      },
+      boxShadow: {
+        'halo-gold': '0 0 24px rgba(232, 193, 111, 0.20)',
+        'halo-gold-strong': '0 0 32px rgba(232, 193, 111, 0.40)',
       },
       borderRadius: {
         lg: "var(--radius)",
