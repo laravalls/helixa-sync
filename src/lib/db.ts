@@ -99,7 +99,8 @@ export const savePlan = async (
           device_id,
           cycle_day: cycleDay,
           mode,
-          plan_json: plan as unknown as Record<string, unknown>,
+          // jsonb column — cast through unknown to satisfy the generated Json type
+          plan_json: plan as unknown as never,
         },
       ],
       { onConflict: "device_id,cycle_day,mode" },
