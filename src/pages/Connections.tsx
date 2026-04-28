@@ -700,9 +700,7 @@ const Connections = () => {
                   </div>
                   <button
                     type="button"
-                    onClick={() =>
-                      toast({ description: "HelixA Pro launches Q3 2026." })
-                    }
+                    onClick={() => navigate("/premium?from=/connections")}
                     className="press mt-6 w-full h-12 font-mono-data text-[12px] tracking-[0.32em] uppercase bg-primary text-primary-foreground rounded-full halo-gold hover:opacity-95 transition-opacity"
                   >
                     Upgrade to Pro

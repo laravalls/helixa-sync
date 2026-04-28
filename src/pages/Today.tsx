@@ -481,9 +481,10 @@ const Today = () => {
 
               <button
                 type="button"
+                onClick={() => navigate("/premium?from=/")}
                 className="mt-8 w-full font-mono-data text-[11px] tracking-[0.32em] uppercase text-gold border border-accent-soft rounded-full py-4 hover:shadow-halo-gold transition-shadow duration-400"
               >
-                Notify me
+                Unlock with HelixA Pro
               </button>
             </div>
           )}
