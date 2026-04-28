@@ -14,7 +14,90 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      cached_plans: {
+        Row: {
+          created_at: string
+          cycle_day: number
+          device_id: string
+          id: string
+          mode: string
+          plan_json: Json
+        }
+        Insert: {
+          created_at?: string
+          cycle_day: number
+          device_id: string
+          id?: string
+          mode: string
+          plan_json: Json
+        }
+        Update: {
+          created_at?: string
+          cycle_day?: number
+          device_id?: string
+          id?: string
+          mode?: string
+          plan_json?: Json
+        }
+        Relationships: []
+      }
+      user_cycles: {
+        Row: {
+          active_mode: string
+          created_at: string
+          cycle_length: number
+          device_id: string
+          id: string
+          last_period_date: string | null
+          updated_at: string
+        }
+        Insert: {
+          active_mode?: string
+          created_at?: string
+          cycle_length?: number
+          device_id: string
+          id?: string
+          last_period_date?: string | null
+          updated_at?: string
+        }
+        Update: {
+          active_mode?: string
+          created_at?: string
+          cycle_length?: number
+          device_id?: string
+          id?: string
+          last_period_date?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      wearable_readings: {
+        Row: {
+          device_id: string
+          hrv: number | null
+          id: string
+          recorded_at: string
+          recovery_score: number | null
+          sleep_hours: number | null
+        }
+        Insert: {
+          device_id: string
+          hrv?: number | null
+          id?: string
+          recorded_at?: string
+          recovery_score?: number | null
+          sleep_hours?: number | null
+        }
+        Update: {
+          device_id?: string
+          hrv?: number | null
+          id?: string
+          recorded_at?: string
+          recovery_score?: number | null
+          sleep_hours?: number | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
