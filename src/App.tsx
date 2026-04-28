@@ -6,6 +6,9 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import Index from "./pages/Index.tsx";
 import Today from "./pages/Today.tsx";
 import MovementDetail from "./pages/MovementDetail.tsx";
+import PlateDetail from "./pages/PlateDetail.tsx";
+import StackDetail from "./pages/StackDetail.tsx";
+import RecoveryDetail from "./pages/RecoveryDetail.tsx";
 import Onboarding from "./pages/Onboarding.tsx";
 import Connections from "./pages/Connections.tsx";
 import NotFound from "./pages/NotFound.tsx";
@@ -22,6 +25,9 @@ const App = () => (
           <Route path="/" element={<Today />} />
           <Route path="/onboarding" element={<Onboarding />} />
           <Route path="/movement" element={<MovementDetail />} />
+          <Route path="/plate" element={<PlateDetail />} />
+          <Route path="/stack" element={<StackDetail />} />
+          <Route path="/recovery" element={<RecoveryDetail />} />
           <Route path="/connections" element={<Connections />} />
           <Route path="/styleguide" element={<Index />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
