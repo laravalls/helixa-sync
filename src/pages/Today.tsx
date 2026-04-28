@@ -469,6 +469,9 @@ const Today = () => {
           )}
         </SheetContent>
       </Sheet>
+
+      {/* NOTIFICATIONS */}
+      <NotificationsPanel open={alertsOpen} onOpenChange={setAlertsOpen} />
     </main>
   );
 };
