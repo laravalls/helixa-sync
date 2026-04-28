@@ -6,8 +6,6 @@ import {
   FileText,
   Headphones,
   Infinity as InfinityIcon,
-  Lock,
-  MessageSquare,
   ShieldCheck,
   Sparkles,
   Users,
