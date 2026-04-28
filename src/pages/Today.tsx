@@ -21,6 +21,7 @@ import {
   SheetTitle,
   SheetDescription,
 } from "@/components/ui/sheet";
+import { HormoneChart } from "@/components/HormoneChart";
 
 const CYCLE_DAY = 18;
 const CYCLE_LENGTH = 28;
@@ -354,17 +355,12 @@ const Today = () => {
             <div className="font-mono-data text-[10px] tracking-[0.32em] uppercase text-secondary-dim">
               Hormone Status
             </div>
-            <div
-              className="mt-4 rounded-xl border border-dashed border-white/[0.06] flex items-center justify-center"
-              style={{ height: 160 }}
-            >
-              <span className="font-mono-data text-[10px] tracking-[0.32em] uppercase text-tertiary-dim">
-                Chart · Prompt 5
-              </span>
+            <div className="mt-4">
+              <HormoneChart />
             </div>
             <p
               key={`hormone-${activeMode}`}
-              className="text-xs text-secondary-dim mt-4 leading-relaxed animate-fade-in"
+              className="text-xs text-secondary-dim mt-5 leading-relaxed animate-fade-in"
               style={{ animationDuration: "400ms" }}
             >
               {data.hormone_readout}
