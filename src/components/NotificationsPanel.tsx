@@ -1,10 +1,12 @@
-import { Lock, X } from "lucide-react";
+import { useState } from "react";
+import { BellRing, Lock, X } from "lucide-react";
 import { toast } from "sonner";
 import {
   Sheet,
   SheetContent,
   SheetTitle,
 } from "@/components/ui/sheet";
+import { RemindersSheet } from "@/components/RemindersSheet";
 
 interface NotificationsPanelProps {
   open: boolean;
@@ -43,6 +45,7 @@ export const NotificationsPanel = ({
   open,
   onOpenChange,
 }: NotificationsPanelProps) => {
+  const [remindersOpen, setRemindersOpen] = useState(false);
   const handlePremiumTap = () => {
     toast("Coming with HelixA Pro", { duration: 2000 });
   };
@@ -72,6 +75,27 @@ export const NotificationsPanel = ({
 
           {/* Scrollable content */}
           <div className="flex-1 overflow-y-auto px-5 pb-10">
+            {/* Manage reminders CTA */}
+            <button
+              type="button"
+              onClick={() => setRemindersOpen(true)}
+              className="w-full mb-5 bg-surface-1 rounded-2xl p-4 border border-white/[0.06] flex items-center gap-3 hover:border-accent-soft transition-colors text-left"
+            >
+              <div className="w-9 h-9 rounded-full border border-accent-soft flex items-center justify-center text-gold shrink-0"
+                style={{ boxShadow: "0 0 24px hsl(var(--gold) / 0.3)" }}
+              >
+                <BellRing size={16} strokeWidth={1.5} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="font-mono-data text-[10px] tracking-[0.32em] uppercase text-gold">
+                  Manage Reminders
+                </div>
+                <p className="text-xs text-secondary-dim mt-1 leading-relaxed">
+                  Pop-ups for periods, ovulation, phase shifts and more.
+                </p>
+              </div>
+            </button>
+
             <div className="space-y-4">
               {ALERTS.map((a) => (
                 <article
@@ -119,6 +143,7 @@ export const NotificationsPanel = ({
             </button>
           </div>
         </div>
+        <RemindersSheet open={remindersOpen} onOpenChange={setRemindersOpen} />
       </SheetContent>
     </Sheet>
   );
