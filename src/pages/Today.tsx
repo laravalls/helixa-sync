@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/sheet";
 import { HormoneChart } from "@/components/HormoneChart";
 import { CycleRing } from "@/components/CycleRing";
+import { NotificationsPanel } from "@/components/NotificationsPanel";
 
 const CYCLE_DAY = 18;
 const CYCLE_LENGTH = 28;
@@ -209,6 +210,7 @@ const Today = () => {
   const [scrolled, setScrolled] = useState(false);
   const [activeMode, setActiveMode] = useState<ModeId>("cycle_sync");
   const [lockedSheet, setLockedSheet] = useState<ModeDef | null>(null);
+  const [alertsOpen, setAlertsOpen] = useState(false);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -255,7 +257,11 @@ const Today = () => {
             />
           </div>
           <div className="flex items-center gap-5 text-secondary-dim">
-            <button aria-label="Notifications" className="hover:text-cream transition-colors">
+            <button
+              aria-label="Notifications"
+              onClick={() => setAlertsOpen(true)}
+              className="hover:text-cream transition-colors"
+            >
               <Bell size={18} strokeWidth={1.5} />
             </button>
             <button aria-label="Settings" className="hover:text-cream transition-colors">
@@ -293,8 +299,10 @@ const Today = () => {
                 className="font-mono-data uppercase text-cream"
                 style={{ fontSize: 12, letterSpacing: "0.05em" }}
               >
-                {WEARABLE_DATA.device} · HRV {WEARABLE_DATA.hrv} · RECOVERY{" "}
-                {WEARABLE_DATA.recovery_score}
+                {WEARABLE_DATA.device
+                  ? `${WEARABLE_DATA.device} · `
+                  : "Wearable · "}
+                HRV {WEARABLE_DATA.hrv} · RECOVERY {WEARABLE_DATA.recovery_score}
               </span>
             </div>
           </section>
@@ -461,6 +469,9 @@ const Today = () => {
           )}
         </SheetContent>
       </Sheet>
+
+      {/* NOTIFICATIONS */}
+      <NotificationsPanel open={alertsOpen} onOpenChange={setAlertsOpen} />
     </main>
   );
 };
