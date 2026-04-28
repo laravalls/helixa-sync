@@ -279,7 +279,11 @@ const Today = () => {
             >
               <Bell size={18} strokeWidth={1.5} />
             </button>
-            <button aria-label="Settings" className="hover:text-cream transition-colors">
+            <button
+              aria-label="Connections"
+              onClick={() => navigate("/connections")}
+              className="hover:text-cream transition-colors"
+            >
               <Settings size={18} strokeWidth={1.5} />
             </button>
           </div>
@@ -314,10 +318,7 @@ const Today = () => {
                 className="font-mono-data uppercase text-cream"
                 style={{ fontSize: 12, letterSpacing: "0.05em" }}
               >
-                {WEARABLE_DATA.device
-                  ? `${WEARABLE_DATA.device} · `
-                  : "Wearable · "}
-                HRV {WEARABLE_DATA.hrv} · RECOVERY {WEARABLE_DATA.recovery_score}
+                Wearable device data · HRV {WEARABLE_DATA.hrv} · RECOVERY {WEARABLE_DATA.recovery_score}
               </span>
             </div>
           </section>
