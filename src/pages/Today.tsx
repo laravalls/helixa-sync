@@ -22,6 +22,7 @@ import {
   SheetDescription,
 } from "@/components/ui/sheet";
 import { HormoneChart } from "@/components/HormoneChart";
+import { CycleRing } from "@/components/CycleRing";
 
 const CYCLE_DAY = 18;
 const CYCLE_LENGTH = 28;
@@ -400,13 +401,8 @@ const Today = () => {
             <div className="font-mono-data text-[10px] tracking-[0.32em] uppercase text-secondary-dim mb-4">
               Your Cycle
             </div>
-            <div
-              className="rounded-2xl border border-dashed border-white/[0.06] bg-surface-1 flex items-center justify-center"
-              style={{ height: 320 }}
-            >
-              <span className="font-mono-data text-[10px] tracking-[0.32em] uppercase text-tertiary-dim">
-                Helix · Prompt 6
-              </span>
+            <div className="rounded-2xl border border-white/[0.06] bg-surface-1 p-5">
+              <CycleRing today={CYCLE_DAY} />
             </div>
           </section>
         </div>
