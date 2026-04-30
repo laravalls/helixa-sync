@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { Helmet } from "react-helmet-async";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
@@ -37,6 +36,48 @@ export default function Beta() {
   const [wantMost, setWantMost] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+
+  useEffect(() => {
+    const prevTitle = document.title;
+    document.title = "Join the HelixA beta — health that syncs to your cycle";
+
+    const setMeta = (name: string, content: string) => {
+      let el = document.querySelector(`meta[name="${name}"]`) as HTMLMetaElement | null;
+      if (!el) {
+        el = document.createElement("meta");
+        el.setAttribute("name", name);
+        document.head.appendChild(el);
+      }
+      const prev = el.getAttribute("content");
+      el.setAttribute("content", content);
+      return () => {
+        if (prev !== null) el!.setAttribute("content", prev);
+        else el!.remove();
+      };
+    };
+
+    const restoreDesc = setMeta(
+      "description",
+      "HelixA is the first app that syncs your wearables, nutrition, calendar and workouts to your menstrual cycle. Join the private beta."
+    );
+
+    let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
+    const createdCanonical = !canonical;
+    const prevHref = canonical?.href;
+    if (!canonical) {
+      canonical = document.createElement("link");
+      canonical.setAttribute("rel", "canonical");
+      document.head.appendChild(canonical);
+    }
+    canonical.href = "https://helixa-sync.com/beta";
+
+    return () => {
+      document.title = prevTitle;
+      restoreDesc();
+      if (createdCanonical) canonical?.remove();
+      else if (canonical && prevHref) canonical.href = prevHref;
+    };
+  }, []);
 
   const isValidEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
   const isFormValid = email.trim() !== "" && isValidEmail(email) && interest !== "";
@@ -89,15 +130,6 @@ export default function Beta() {
 
   return (
     <>
-      <Helmet>
-        <title>Join the HelixA beta — health that syncs to your cycle</title>
-        <meta
-          name="description"
-          content="HelixA is the first app that syncs your wearables, nutrition, calendar and workouts to your menstrual cycle. Join the private beta."
-        />
-        <link rel="canonical" href="https://helixa-sync.com/beta" />
-      </Helmet>
-
       <main
         style={{
           backgroundColor: "#0A0A0C",
