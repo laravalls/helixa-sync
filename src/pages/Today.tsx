@@ -9,6 +9,8 @@ import {
   UtensilsCrossed,
   Pill,
   Moon,
+  Trophy,
+  X,
 } from "lucide-react";
 import {
   CYCLE_SYNC_DAY_18,
