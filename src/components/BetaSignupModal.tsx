@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 
 interface BetaSignupModalProps {
@@ -7,6 +7,12 @@ interface BetaSignupModalProps {
 }
 
 export const BetaSignupModal = ({ isOpen, onClose }: BetaSignupModalProps) => {
+  const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
+  const [interest, setInterest] = useState("");
+  const [currentTools, setCurrentTools] = useState("");
+  const [wantMost, setWantMost] = useState("");
+
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
