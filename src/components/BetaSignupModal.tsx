@@ -87,18 +87,6 @@ export const BetaSignupModal = ({ isOpen, onClose }: BetaSignupModalProps) => {
       setSubmitting(false);
       console.log("=== FORM SUBMISSION END ===");
     }
-    return;
-    // legacy success path retained removed
-    setSubmitted(true);
-    toast({
-      title: "You're in!",
-      description: "We'll be in touch when the beta opens.",
-    });
-    setEmail("");
-    setName("");
-    setInterest("");
-    setCurrentTools("");
-    setWantMost("");
   };
 
   useEffect(() => {
