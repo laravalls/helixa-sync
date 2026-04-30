@@ -499,10 +499,10 @@ export const BetaSignupModal = ({ isOpen, onClose }: BetaSignupModalProps) => {
           {/* Submit */}
           <button
             type="submit"
-            disabled={!isFormValid}
+            disabled={!isFormValid || submitting || submitted}
             className="beta-submit"
           >
-            Join the beta
+            {submitted ? "Submitted ✓" : submitting ? "Submitting…" : "Join the beta"}
           </button>
 
           {/* Footer */}
