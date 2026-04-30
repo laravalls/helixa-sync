@@ -287,7 +287,7 @@ const Today = () => {
           <div className="flex items-center gap-5 text-secondary-dim">
             <button
               type="button"
-              onClick={() => setIsBetaModalOpen(true)}
+              onClick={() => navigate("/beta")}
               className="inline-flex items-center transition-all duration-200"
               style={{
                 gap: 8,
@@ -381,7 +381,7 @@ const Today = () => {
               <div className="flex items-center" style={{ gap: 12 }}>
                 <button
                   type="button"
-                  onClick={() => setIsBetaModalOpen(true)}
+                  onClick={() => navigate("/beta")}
                   className="font-mono uppercase"
                   style={{
                     padding: "6px 12px",
