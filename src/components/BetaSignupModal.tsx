@@ -74,6 +74,32 @@ export const BetaSignupModal = ({ isOpen, onClose }: BetaSignupModalProps) => {
     };
   }, [isOpen]);
 
+  // Auto-close 4s after successful submission
+  useEffect(() => {
+    if (submitted) {
+      const timer = setTimeout(() => {
+        onClose();
+      }, 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [submitted, onClose]);
+
+  // Reset form state shortly after the modal closes
+  useEffect(() => {
+    if (!isOpen) {
+      const timer = setTimeout(() => {
+        setEmail("");
+        setName("");
+        setInterest("");
+        setCurrentTools("");
+        setWantMost("");
+        setSubmitting(false);
+        setSubmitted(false);
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   return (
