@@ -27,6 +27,7 @@ import { CycleRing } from "@/components/CycleRing";
 import { NotificationsPanel } from "@/components/NotificationsPanel";
 import { BottomNav } from "@/components/BottomNav";
 import { getUserCycle } from "@/lib/db";
+import { BetaSignupModal } from "@/components/BetaSignupModal";
 
 const CYCLE_DAY = 18;
 const CYCLE_LENGTH = 28;
@@ -213,6 +214,7 @@ const Today = () => {
   const [activeMode, setActiveMode] = useState<ModeId>("ttc");
   const [lockedSheet, setLockedSheet] = useState<ModeDef | null>(null);
   const [alertsOpen, setAlertsOpen] = useState(false);
+  const [isBetaModalOpen, setIsBetaModalOpen] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -273,6 +275,55 @@ const Today = () => {
             />
           </div>
           <div className="flex items-center gap-5 text-secondary-dim">
+            <button
+              type="button"
+              onClick={() => setIsBetaModalOpen(true)}
+              className="inline-flex items-center transition-all duration-200"
+              style={{
+                gap: 8,
+                backgroundColor: "#0A0A0C",
+                border: "1px solid #E8C16F",
+                padding: "8px 12px",
+                borderRadius: 20,
+                cursor: "pointer",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = "rgba(232,193,111,0.1)";
+                e.currentTarget.style.boxShadow = "0 0 16px rgba(232,193,111,0.2)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = "#0A0A0C";
+                e.currentTarget.style.boxShadow = "none";
+              }}
+            >
+              <style>{`
+                @keyframes beta-dot-pulse {
+                  0%, 100% { transform: scale(1); }
+                  50% { transform: scale(1.3); }
+                }
+              `}</style>
+              <span
+                aria-hidden
+                style={{
+                  width: 6,
+                  height: 6,
+                  borderRadius: "50%",
+                  backgroundColor: "#E8C16F",
+                  display: "inline-block",
+                  animation: "beta-dot-pulse 2s ease-in-out infinite",
+                }}
+              />
+              <span
+                className="font-mono uppercase"
+                style={{
+                  fontSize: 11,
+                  letterSpacing: "0.05em",
+                  color: "#E8C16F",
+                }}
+              >
+                Join Beta
+              </span>
+            </button>
             <button
               aria-label="Notifications"
               onClick={() => setAlertsOpen(true)}
@@ -494,6 +545,10 @@ const Today = () => {
       {/* NOTIFICATIONS */}
       <NotificationsPanel open={alertsOpen} onOpenChange={setAlertsOpen} />
       <BottomNav />
+      <BetaSignupModal
+        isOpen={isBetaModalOpen}
+        onClose={() => setIsBetaModalOpen(false)}
+      />
     </main>
   );
 };
