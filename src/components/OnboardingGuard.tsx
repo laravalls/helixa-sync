@@ -10,15 +10,16 @@ export const OnboardingGuard = ({ children }: OnboardingGuardProps) => {
   const navigate = useNavigate();
   const location = useLocation();
   const isOnboarded = hasCompletedOnboarding();
-  const onOnboarding = location.pathname === "/onboarding";
+  const PUBLIC_PATHS = ["/onboarding", "/beta"];
+  const onPublicPath = PUBLIC_PATHS.includes(location.pathname);
 
   useEffect(() => {
-    if (!isOnboarded && !onOnboarding) {
+    if (!isOnboarded && !onPublicPath) {
       navigate("/onboarding", { replace: true });
     }
-  }, [isOnboarded, onOnboarding, navigate]);
+  }, [isOnboarded, onPublicPath, navigate]);
 
-  if (!isOnboarded && !onOnboarding) return null;
+  if (!isOnboarded && !onPublicPath) return null;
 
   return <>{children}</>;
 };
