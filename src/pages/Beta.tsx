@@ -38,6 +38,11 @@ export default function Beta() {
   const [submitted, setSubmitted] = useState(false);
 
   useEffect(() => {
+    // Safety: clear any stale scroll lock from a previously-open modal
+    document.body.style.overflow = "";
+    document.documentElement.style.overflow = "";
+    window.scrollTo({ top: 0, left: 0 });
+
     const prevTitle = document.title;
     document.title = "Join the HelixA beta — health that syncs to your cycle";
 
