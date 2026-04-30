@@ -352,6 +352,65 @@ const Today = () => {
         </header>
 
         <div className="px-5 pb-20 space-y-8">
+          {!isBannerDismissed && (
+            <div
+              className="flex flex-wrap items-center justify-between"
+              style={{
+                width: "100%",
+                backgroundColor: "#0A0A0C",
+                borderLeft: "2px solid #E8C16F",
+                padding: "12px 16px",
+                marginTop: 16,
+                gap: 12,
+              }}
+            >
+              <div className="flex items-center" style={{ flex: "1 1 220px", minWidth: 0 }}>
+                <Trophy size={16} strokeWidth={1.5} color="#E8C16F" style={{ flexShrink: 0 }} />
+                <span
+                  style={{
+                    marginLeft: 12,
+                    fontFamily: "Inter, ui-sans-serif, system-ui, sans-serif",
+                    fontSize: 14,
+                    color: "#F2EDE4",
+                    lineHeight: 1.4,
+                  }}
+                >
+                  We won Beta Dash! Join our beta and get lifetime Pro access.
+                </span>
+              </div>
+              <div className="flex items-center" style={{ gap: 12 }}>
+                <button
+                  type="button"
+                  onClick={() => setIsBetaModalOpen(true)}
+                  className="font-mono uppercase"
+                  style={{
+                    padding: "6px 12px",
+                    background: "transparent",
+                    border: "1px solid #E8C16F",
+                    borderRadius: 4,
+                    fontSize: 11,
+                    letterSpacing: "0.05em",
+                    color: "#E8C16F",
+                    cursor: "pointer",
+                  }}
+                >
+                  Join Beta
+                </button>
+                <button
+                  type="button"
+                  aria-label="Dismiss banner"
+                  onClick={dismissBetaBanner}
+                  className="flex items-center justify-center transition-colors"
+                  style={{ width: 24, height: 24, color: "#5A554E", cursor: "pointer" }}
+                  onMouseEnter={(e) => (e.currentTarget.style.color = "#8B8478")}
+                  onMouseLeave={(e) => (e.currentTarget.style.color = "#5A554E")}
+                >
+                  <X size={16} strokeWidth={1.5} />
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* HERO RING */}
           <section className="pt-8 flex flex-col items-center">
             <HeroRing color={ringColor} phaseLabel={data.phase_label} />
