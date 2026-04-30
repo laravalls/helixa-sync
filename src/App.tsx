@@ -14,6 +14,7 @@ import Connections from "./pages/Connections.tsx";
 import Research from "./pages/Research.tsx";
 import Profile from "./pages/Profile.tsx";
 import Premium from "./pages/Premium.tsx";
+import Beta from "./pages/Beta.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import { OnboardingGuard } from "./components/OnboardingGuard";
 
@@ -37,6 +38,7 @@ const App = () => (
           <Route path="/research" element={<Research />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/premium" element={<Premium />} />
+          <Route path="/beta" element={<Beta />} />
           <Route path="/styleguide" element={<Index />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
