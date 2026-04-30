@@ -214,6 +214,7 @@ const Today = () => {
   const [activeMode, setActiveMode] = useState<ModeId>("ttc");
   const [lockedSheet, setLockedSheet] = useState<ModeDef | null>(null);
   const [alertsOpen, setAlertsOpen] = useState(false);
+  const [isBetaModalOpen, setIsBetaModalOpen] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
