@@ -193,9 +193,10 @@ export const BetaSignupModal = ({ isOpen, onClose }: BetaSignupModalProps) => {
               marginBottom: 12,
             }}
           >
-            Join the HelixA beta
+            {submitted ? "You're on the list" : "Join the HelixA beta"}
           </h2>
-          <p
+          {!submitted && (
+            <p
             style={{
               color: "#8B8478",
               fontSize: 16,
@@ -204,9 +205,72 @@ export const BetaSignupModal = ({ isOpen, onClose }: BetaSignupModalProps) => {
             }}
           >
             Be among the first to test the app that syncs your health data to your biology.
-          </p>
+            </p>
+          )}
         </div>
 
+        {submitted ? (
+          <div className="flex flex-col items-center text-center" style={{ marginTop: 24 }}>
+            <style>{`
+              @keyframes beta-success-pop {
+                0% { transform: scale(0.8); opacity: 0; }
+                100% { transform: scale(1); opacity: 1; }
+              }
+              .beta-success-close {
+                width: 100%;
+                height: 48px;
+                background: transparent;
+                border: 1px solid #E8C16F;
+                color: #E8C16F;
+                font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+                font-size: 13px;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                border-radius: 8px;
+                margin-top: 32px;
+                cursor: pointer;
+                transition: background-color 200ms ease;
+              }
+              .beta-success-close:hover {
+                background: rgba(232,193,111,0.1);
+              }
+            `}</style>
+            <svg
+              width="64"
+              height="64"
+              viewBox="0 0 64 64"
+              fill="none"
+              style={{ animation: "beta-success-pop 400ms ease-out" }}
+              aria-hidden
+            >
+              <circle cx="32" cy="32" r="30" stroke="#E8C16F" strokeWidth="2" />
+              <path
+                d="M20 33 L29 42 L45 24"
+                stroke="#E8C16F"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                fill="none"
+              />
+            </svg>
+            <p
+              style={{
+                marginTop: 12,
+                fontFamily: "Inter, ui-sans-serif, system-ui, sans-serif",
+                fontSize: 16,
+                color: "#8B8478",
+                maxWidth: 320,
+                lineHeight: 1.5,
+              }}
+            >
+              We'll email you when beta spots open. Expect Q3 2026.
+            </p>
+            <button type="button" onClick={onClose} className="beta-success-close">
+              Close
+            </button>
+          </div>
+        ) : (
+          <>
         {/* Problem section */}
         <div style={{ marginTop: 24, textAlign: "left" }}>
           <p
