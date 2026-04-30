@@ -217,6 +217,14 @@ const Today = () => {
   const [lockedSheet, setLockedSheet] = useState<ModeDef | null>(null);
   const [alertsOpen, setAlertsOpen] = useState(false);
   const [isBetaModalOpen, setIsBetaModalOpen] = useState(false);
+  const [isBannerDismissed, setIsBannerDismissed] = useState(
+    () => localStorage.getItem("helixa_beta_banner_dismissed") === "true",
+  );
+
+  const dismissBetaBanner = () => {
+    setIsBannerDismissed(true);
+    localStorage.setItem("helixa_beta_banner_dismissed", "true");
+  };
 
   useEffect(() => {
     let cancelled = false;
