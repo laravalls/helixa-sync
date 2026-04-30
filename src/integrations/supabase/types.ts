@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      beta_signups: {
+        Row: {
+          created_at: string
+          current_tools: string | null
+          email: string
+          id: string
+          interest: string
+          name: string | null
+          source: string | null
+          want_most: string | null
+        }
+        Insert: {
+          created_at?: string
+          current_tools?: string | null
+          email: string
+          id?: string
+          interest: string
+          name?: string | null
+          source?: string | null
+          want_most?: string | null
+        }
+        Update: {
+          created_at?: string
+          current_tools?: string | null
+          email?: string
+          id?: string
+          interest?: string
+          name?: string | null
+          source?: string | null
+          want_most?: string | null
+        }
+        Relationships: []
+      }
       cached_plans: {
         Row: {
           created_at: string
