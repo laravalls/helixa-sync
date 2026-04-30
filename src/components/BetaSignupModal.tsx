@@ -608,6 +608,8 @@ export const BetaSignupModal = ({ isOpen, onClose }: BetaSignupModalProps) => {
             We respect your privacy. No spam. Unsubscribe anytime.
           </p>
         </form>
+          </>
+        )}
       </div>
     </>
   );
