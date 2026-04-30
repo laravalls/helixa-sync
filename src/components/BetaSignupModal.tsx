@@ -179,6 +179,200 @@ export const BetaSignupModal = ({ isOpen, onClose }: BetaSignupModalProps) => {
             HelixA is the glue. One app that syncs your wearables, nutrition, calendar, and workouts to your menstrual cycle. Daily guidance on when to train hard, when to rest, when to schedule that board meeting.
           </p>
         </div>
+
+        {/* Form */}
+        <form onSubmit={(e) => e.preventDefault()}>
+          <style>{`
+            .beta-input, .beta-textarea {
+              width: 100%;
+              background: #0A0A0C;
+              border: 1px solid rgba(255,255,255,0.06);
+              border-radius: 8px;
+              font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+              font-size: 14px;
+              color: #F2EDE4;
+              outline: none;
+              transition: border-color 200ms ease;
+            }
+            .beta-input { height: 48px; padding: 0 16px; }
+            .beta-textarea { height: 72px; padding: 12px 16px; resize: vertical; line-height: 1.5; }
+            .beta-input:focus, .beta-textarea:focus { border-color: #E8C16F; }
+            .beta-input::placeholder, .beta-textarea::placeholder { color: #5A554E; }
+          `}</style>
+
+          {/* Email */}
+          <label className="block" style={{ marginBottom: 16 }}>
+            <span
+              className="font-mono uppercase block"
+              style={{
+                fontSize: 11,
+                letterSpacing: "0.05em",
+                color: "#8B8478",
+                marginBottom: 8,
+              }}
+            >
+              Email
+            </span>
+            <input
+              type="email"
+              required
+              className="beta-input"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </label>
+
+          {/* Name */}
+          <label className="block" style={{ marginBottom: 16 }}>
+            <span
+              className="font-mono uppercase block"
+              style={{
+                fontSize: 11,
+                letterSpacing: "0.05em",
+                color: "#8B8478",
+                marginBottom: 8,
+              }}
+            >
+              Name
+            </span>
+            <input
+              type="text"
+              className="beta-input"
+              placeholder="How should we address you?"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+          </label>
+
+          {/* Interest */}
+          <div style={{ marginBottom: 16 }}>
+            <span
+              className="font-mono uppercase block"
+              style={{
+                fontSize: 11,
+                letterSpacing: "0.05em",
+                color: "#8B8478",
+                marginBottom: 12,
+              }}
+            >
+              I'm most interested in
+            </span>
+            <div className="flex flex-col" style={{ gap: 12 }}>
+              {[
+                { value: "ttc", label: "Trying to Conceive (fertility guidance)" },
+                { value: "cycle_sync", label: "Cycle Sync (optimizing workouts and recovery)" },
+                { value: "pcos", label: "PCOS Management (irregular cycles, symptom tracking)" },
+                { value: "exploring", label: "Just exploring (not sure yet)" },
+              ].map((opt) => {
+                const selected = interest === opt.value;
+                return (
+                  <div
+                    key={opt.value}
+                    onClick={() => setInterest(opt.value)}
+                    role="radio"
+                    aria-checked={selected}
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === " " || e.key === "Enter") {
+                        e.preventDefault();
+                        setInterest(opt.value);
+                      }
+                    }}
+                    className="flex items-center"
+                    style={{
+                      gap: 12,
+                      padding: 12,
+                      backgroundColor: selected
+                        ? "rgba(232,193,111,0.1)"
+                        : "#0A0A0C",
+                      border: selected
+                        ? "1px solid #E8C16F"
+                        : "1px solid rgba(255,255,255,0.06)",
+                      borderRadius: 8,
+                      cursor: "pointer",
+                      transition: "all 200ms ease",
+                    }}
+                  >
+                    <div
+                      className="flex items-center justify-center rounded-full shrink-0"
+                      style={{
+                        width: 16,
+                        height: 16,
+                        border: selected
+                          ? "1.5px solid #E8C16F"
+                          : "1.5px solid #5A554E",
+                        transition: "all 200ms ease",
+                      }}
+                    >
+                      {selected && (
+                        <div
+                          className="rounded-full"
+                          style={{
+                            width: 8,
+                            height: 8,
+                            backgroundColor: "#E8C16F",
+                          }}
+                        />
+                      )}
+                    </div>
+                    <span
+                      style={{
+                        fontSize: 14,
+                        color: selected ? "#F2EDE4" : "#8B8478",
+                        transition: "color 200ms ease",
+                      }}
+                    >
+                      {opt.label}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Current tools */}
+          <label className="block" style={{ marginBottom: 16 }}>
+            <span
+              className="font-mono uppercase block"
+              style={{
+                fontSize: 11,
+                letterSpacing: "0.05em",
+                color: "#8B8478",
+                marginBottom: 8,
+              }}
+            >
+              What do you currently use for tracking?
+            </span>
+            <textarea
+              className="beta-textarea"
+              placeholder="e.g. Oura for HRV, Flo for cycle, MyFitnessPal for food..."
+              value={currentTools}
+              onChange={(e) => setCurrentTools(e.target.value)}
+            />
+          </label>
+
+          {/* Want most */}
+          <label className="block" style={{ marginBottom: 24 }}>
+            <span
+              className="font-mono uppercase block"
+              style={{
+                fontSize: 11,
+                letterSpacing: "0.05em",
+                color: "#8B8478",
+                marginBottom: 8,
+              }}
+            >
+              What feature would you use most?
+            </span>
+            <textarea
+              className="beta-textarea"
+              placeholder="e.g. Know when to schedule hard workouts, meal planning by phase..."
+              value={wantMost}
+              onChange={(e) => setWantMost(e.target.value)}
+            />
+          </label>
+        </form>
       </div>
     </>
   );
