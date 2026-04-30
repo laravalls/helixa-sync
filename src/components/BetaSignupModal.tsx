@@ -124,6 +124,55 @@ export const BetaSignupModal = ({ isOpen, onClose }: BetaSignupModalProps) => {
             Be among the first to test the app that syncs your health data to your biology.
           </p>
         </div>
+
+        {/* Problem section */}
+        <div style={{ marginTop: 24, textAlign: "left" }}>
+          <p
+            style={{
+              fontWeight: 400,
+              fontSize: 14,
+              lineHeight: 1.6,
+              color: "#8B8478",
+            }}
+          >
+            95% of health data is based on male physiology. You've been tracking everything across 15 apps—Oura, Strava, MyFitnessPal, Clue, Google Calendar—but nothing connects them to your cycle.
+          </p>
+          <p
+            style={{
+              marginTop: 12,
+              fontWeight: 400,
+              fontSize: 14,
+              lineHeight: 1.6,
+              color: "#8B8478",
+            }}
+          >
+            Your hormones swing 400% across 28 days. Every workout plan, recovery protocol, and supplement stack ignores it.
+          </p>
+        </div>
+
+        {/* Solution section */}
+        <div
+          style={{
+            marginTop: 16,
+            marginBottom: 24,
+            padding: 16,
+            backgroundColor: "rgba(232,193,111,0.05)",
+            borderLeft: "2px solid #E8C16F",
+            borderRadius: 4,
+            textAlign: "left",
+          }}
+        >
+          <p
+            style={{
+              fontWeight: 400,
+              fontSize: 14,
+              lineHeight: 1.6,
+              color: "#F2EDE4",
+            }}
+          >
+            HelixA is the glue. One app that syncs your wearables, nutrition, calendar, and workouts to your menstrual cycle. Daily guidance on when to train hard, when to rest, when to schedule that board meeting.
+          </p>
+        </div>
       </div>
     </>
   );
