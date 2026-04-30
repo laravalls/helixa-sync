@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
 
 interface BetaSignupModalProps {
   isOpen: boolean;
@@ -12,6 +14,8 @@ export const BetaSignupModal = ({ isOpen, onClose }: BetaSignupModalProps) => {
   const [interest, setInterest] = useState("");
   const [currentTools, setCurrentTools] = useState("");
   const [wantMost, setWantMost] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
 
   const isValidEmail = (value: string) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
@@ -19,11 +23,44 @@ export const BetaSignupModal = ({ isOpen, onClose }: BetaSignupModalProps) => {
   const isFormValid =
     email.trim() !== "" && isValidEmail(email) && interest !== "";
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!isFormValid) return;
-    const data = { email, name, interest, currentTools, wantMost };
-    console.log("Form submitted!", data);
+    if (!isFormValid || submitting) return;
+
+    setSubmitting(true);
+    const { error } = await supabase.from("beta_signups").insert({
+      email: email.trim().toLowerCase(),
+      name: name.trim() || null,
+      interest,
+      current_tools: currentTools.trim() || null,
+      want_most: wantMost.trim() || null,
+      source: "app_modal",
+    });
+    setSubmitting(false);
+
+    if (error) {
+      const isDuplicate =
+        error.code === "23505" || /duplicate/i.test(error.message);
+      toast({
+        title: isDuplicate ? "You're already on the list" : "Something went wrong",
+        description: isDuplicate
+          ? "This email is already signed up for the beta."
+          : error.message,
+        variant: isDuplicate ? "default" : "destructive",
+      });
+      return;
+    }
+
+    setSubmitted(true);
+    toast({
+      title: "You're in!",
+      description: "We'll be in touch when the beta opens.",
+    });
+    setEmail("");
+    setName("");
+    setInterest("");
+    setCurrentTools("");
+    setWantMost("");
   };
 
   useEffect(() => {
