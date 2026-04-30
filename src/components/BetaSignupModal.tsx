@@ -13,6 +13,19 @@ export const BetaSignupModal = ({ isOpen, onClose }: BetaSignupModalProps) => {
   const [currentTools, setCurrentTools] = useState("");
   const [wantMost, setWantMost] = useState("");
 
+  const isValidEmail = (value: string) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+
+  const isFormValid =
+    email.trim() !== "" && isValidEmail(email) && interest !== "";
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!isFormValid) return;
+    const data = { email, name, interest, currentTools, wantMost };
+    console.log("Form submitted!", data);
+  };
+
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
@@ -181,7 +194,7 @@ export const BetaSignupModal = ({ isOpen, onClose }: BetaSignupModalProps) => {
         </div>
 
         {/* Form */}
-        <form onSubmit={(e) => e.preventDefault()}>
+        <form onSubmit={handleSubmit}>
           <style>{`
             .beta-input, .beta-textarea {
               width: 100%;
@@ -198,6 +211,33 @@ export const BetaSignupModal = ({ isOpen, onClose }: BetaSignupModalProps) => {
             .beta-textarea { height: 72px; padding: 12px 16px; resize: vertical; line-height: 1.5; }
             .beta-input:focus, .beta-textarea:focus { border-color: #E8C16F; }
             .beta-input::placeholder, .beta-textarea::placeholder { color: #5A554E; }
+            .beta-submit {
+              width: 100%;
+              height: 56px;
+              background: #E8C16F;
+              color: #000000;
+              font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+              font-size: 14px;
+              text-transform: uppercase;
+              letter-spacing: 0.05em;
+              border: none;
+              border-radius: 8px;
+              cursor: pointer;
+              box-shadow: 0 0 24px rgba(232,193,111,0.3);
+              transition: all 200ms ease;
+            }
+            .beta-submit:hover:not(:disabled) {
+              box-shadow: 0 0 32px rgba(232,193,111,0.4);
+            }
+            .beta-submit:active:not(:disabled) {
+              transform: scale(0.97);
+            }
+            .beta-submit:disabled {
+              background: rgba(255,255,255,0.1);
+              color: #5A554E;
+              box-shadow: none;
+              cursor: not-allowed;
+            }
           `}</style>
 
           {/* Email */}
@@ -372,6 +412,74 @@ export const BetaSignupModal = ({ isOpen, onClose }: BetaSignupModalProps) => {
               onChange={(e) => setWantMost(e.target.value)}
             />
           </label>
+
+          {/* Beta info callout */}
+          <div
+            style={{
+              display: "flex",
+              gap: 12,
+              alignItems: "flex-start",
+              backgroundColor: "#0A0A0C",
+              padding: 12,
+              borderRadius: 8,
+              marginBottom: 16,
+            }}
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              fill="none"
+              style={{ flexShrink: 0, marginTop: 2 }}
+              aria-hidden
+            >
+              <circle
+                cx="8"
+                cy="8"
+                r="7"
+                stroke="#E8C16F"
+                strokeWidth="1.5"
+              />
+              <path
+                d="M8 7v4M8 5.25v.01"
+                stroke="#E8C16F"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+              />
+            </svg>
+            <span
+              style={{
+                fontFamily: "Inter, ui-sans-serif, system-ui, sans-serif",
+                fontSize: 12,
+                lineHeight: 1.5,
+                color: "#8B8478",
+              }}
+            >
+              Beta launching Q3 2026. Early testers get lifetime Pro access ($240/year value). Your feedback shapes the product.
+            </span>
+          </div>
+
+          {/* Submit */}
+          <button
+            type="submit"
+            disabled={!isFormValid}
+            className="beta-submit"
+          >
+            Join the beta
+          </button>
+
+          {/* Footer */}
+          <p
+            style={{
+              marginTop: 16,
+              fontFamily: "Inter, ui-sans-serif, system-ui, sans-serif",
+              fontSize: 11,
+              color: "#5A554E",
+              textAlign: "center",
+            }}
+          >
+            We respect your privacy. No spam. Unsubscribe anytime.
+          </p>
         </form>
       </div>
     </>
