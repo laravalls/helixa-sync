@@ -214,7 +214,7 @@ export default function Beta() {
               marginBottom: 32,
             }}
           >
-            Winner · Beta Dash WomenBuild 2025
+            Winner · FemTech Hackathon 2026
           </span>
 
           <div
