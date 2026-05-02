@@ -375,7 +375,9 @@ const Today = () => {
                     lineHeight: 1.4,
                   }}
                 >
-                  We won Beta Dash! Join our beta and get lifetime Pro access.
+                  We won FemTech Hackathon!
+                  <br />
+                  Join our beta and get lifetime Pro access.
                 </span>
               </div>
               <div className="flex items-center" style={{ gap: 12 }}>
@@ -439,7 +441,9 @@ const Today = () => {
                 className="font-mono-data uppercase text-cream"
                 style={{ fontSize: 12, letterSpacing: "0.05em" }}
               >
-                Wearable device data · HRV {WEARABLE_DATA.hrv} · RECOVERY {WEARABLE_DATA.recovery_score}
+                WEARABLE DEVICE DATA · HRV {WEARABLE_DATA.hrv} ·
+                <br />
+                RECOVERY {WEARABLE_DATA.recovery_score}
               </span>
             </div>
           </section>
