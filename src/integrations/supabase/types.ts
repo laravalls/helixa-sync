@@ -24,6 +24,7 @@ export type Database = {
           name: string | null
           source: string | null
           want_most: string | null
+          wants_interview: boolean
         }
         Insert: {
           created_at?: string
@@ -34,6 +35,7 @@ export type Database = {
           name?: string | null
           source?: string | null
           want_most?: string | null
+          wants_interview?: boolean
         }
         Update: {
           created_at?: string
@@ -44,6 +46,7 @@ export type Database = {
           name?: string | null
           source?: string | null
           want_most?: string | null
+          wants_interview?: boolean
         }
         Relationships: []
       }
