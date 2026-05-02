@@ -419,6 +419,29 @@ export default function Beta() {
                 <p style={{ fontSize: 15, color: "#8B8478", lineHeight: 1.5 }}>
                   We'll email you when beta spots open. Expect Q3 2026.
                 </p>
+                {wantsInterview && (
+                  <a
+                    href="https://cal.eu/lara-valls/helixa-interview"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      display: "inline-block",
+                      marginTop: 20,
+                      padding: "14px 28px",
+                      background: "#E8C16F",
+                      color: "#000",
+                      fontFamily: '"JetBrains Mono", ui-monospace, SFMono-Regular, monospace',
+                      fontSize: 14,
+                      textTransform: "uppercase",
+                      letterSpacing: "0.05em",
+                      borderRadius: 8,
+                      textDecoration: "none",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Book your call
+                  </a>
+                )}
               </div>
             ) : (
               <>
