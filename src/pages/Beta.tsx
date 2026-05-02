@@ -33,6 +33,7 @@ export default function Beta() {
   const [interest, setInterest] = useState("");
   const [currentTools, setCurrentTools] = useState("");
   const [wantMost, setWantMost] = useState("");
+  const [wantsInterview, setWantsInterview] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -103,6 +104,7 @@ export default function Beta() {
           current_tools: currentTools.trim() || null,
           want_most: wantMost.trim() || null,
           source: "beta_page",
+          wants_interview: wantsInterview,
         })
         .select();
 
@@ -603,6 +605,43 @@ export default function Beta() {
                       onChange={(e) => setWantMost(e.target.value)}
                     />
                   </label>
+
+                  {/* Interview checkbox */}
+                  <div style={{ marginBottom: 24 }}>
+                    <label
+                      className="flex items-start"
+                      style={{ gap: 10, cursor: "pointer" }}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={wantsInterview}
+                        onChange={(e) => setWantsInterview(e.target.checked)}
+                        style={{
+                          marginTop: 2,
+                          accentColor: "#E8C16F",
+                          width: 16,
+                          height: 16,
+                          flexShrink: 0,
+                        }}
+                      />
+                      <span style={{ fontSize: 14, color: "#F2EDE4", lineHeight: 1.5 }}>
+                        I'd like to do a 20-minute product interview to help shape HelixA.
+                      </span>
+                    </label>
+                    {wantsInterview && (
+                      <p
+                        style={{
+                          marginTop: 6,
+                          marginLeft: 26,
+                          fontSize: 13,
+                          color: "#8B8478",
+                          lineHeight: 1.4,
+                        }}
+                      >
+                        You'll get a booking link right after signing up.
+                      </p>
+                    )}
+                  </div>
 
                   <button
                     type="submit"

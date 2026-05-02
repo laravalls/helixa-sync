@@ -1,0 +1,1 @@
+ALTER TABLE public.beta_signups ADD COLUMN wants_interview boolean NOT NULL DEFAULT false;
