@@ -21,6 +21,7 @@ export type Database = {
           email: string
           id: string
           interest: string
+          interview_booked: boolean
           name: string | null
           source: string | null
           want_most: string | null
@@ -32,6 +33,7 @@ export type Database = {
           email: string
           id?: string
           interest: string
+          interview_booked?: boolean
           name?: string | null
           source?: string | null
           want_most?: string | null
@@ -43,6 +45,7 @@ export type Database = {
           email?: string
           id?: string
           interest?: string
+          interview_booked?: boolean
           name?: string | null
           source?: string | null
           want_most?: string | null
