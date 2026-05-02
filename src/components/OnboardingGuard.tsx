@@ -10,7 +10,7 @@ export const OnboardingGuard = ({ children }: OnboardingGuardProps) => {
   const navigate = useNavigate();
   const location = useLocation();
   const isOnboarded = hasCompletedOnboarding();
-  const PUBLIC_PATHS = ["/onboarding", "/beta"];
+  const PUBLIC_PATHS = ["/onboarding", "/beta", "/leads"];
   const onPublicPath = PUBLIC_PATHS.includes(location.pathname);
 
   useEffect(() => {
