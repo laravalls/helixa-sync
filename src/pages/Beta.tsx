@@ -36,6 +36,7 @@ export default function Beta() {
   const [wantMost, setWantMost] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   useEffect(() => {
     // Safety: clear any stale scroll lock from a previously-open modal
@@ -92,6 +93,7 @@ export default function Beta() {
     if (!isFormValid || submitting) return;
 
     setSubmitting(true);
+    setSubmitError(null);
     try {
       const { error } = await supabase
         .from("beta_signups")
@@ -101,33 +103,29 @@ export default function Beta() {
           interest,
           current_tools: currentTools.trim() || null,
           want_most: wantMost.trim() || null,
-          source: "landing_page",
+          source: "beta_page",
         })
         .select();
 
       if (error) {
         const isDuplicate =
           error.code === "23505" || /duplicate/i.test(error.message);
-        toast({
-          title: isDuplicate ? "You're already on the list" : "Something went wrong",
-          description: isDuplicate
-            ? "This email is already signed up for the beta."
-            : error.message,
-          variant: isDuplicate ? "default" : "destructive",
-        });
+        if (isDuplicate) {
+          setSubmitError("You're already on the list! Check your email.");
+        } else {
+          setSubmitError("Something went wrong. Try again.");
+        }
         return;
       }
 
       setSubmitted(true);
-      toast({ title: "You're in!", description: "We'll be in touch when the beta opens." });
       setEmail("");
       setName("");
       setInterest("");
       setCurrentTools("");
       setWantMost("");
     } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      toast({ title: "Network error", description: message, variant: "destructive" });
+      setSubmitError("Something went wrong. Try again.");
     } finally {
       setSubmitting(false);
     }
@@ -614,6 +612,19 @@ export default function Beta() {
                   >
                     {submitting ? "Sending…" : "Request access"}
                   </button>
+
+                  {submitError && (
+                    <p
+                      style={{
+                        marginTop: 12,
+                        fontSize: 13,
+                        color: "#E85C4A",
+                        textAlign: "center",
+                      }}
+                    >
+                      {submitError}
+                    </p>
+                  )}
 
                   <p
                     style={{
