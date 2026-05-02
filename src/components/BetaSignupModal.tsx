@@ -180,7 +180,7 @@ export const BetaSignupModal = ({ isOpen, onClose }: BetaSignupModalProps) => {
               borderRadius: 4,
             }}
           >
-            WE WON BETA DASH WOMENBUILD 2025
+            WE WON FEMTECH HACKATHON
           </span>
           <button
             onClick={onClose}
