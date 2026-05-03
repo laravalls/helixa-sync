@@ -105,8 +105,7 @@ export default function Beta() {
           want_most: wantMost.trim() || null,
           source: "beta_page",
           wants_interview: wantsInterview,
-        })
-        .select();
+        });
 
       if (error) {
         const isDuplicate =
@@ -421,7 +420,7 @@ export default function Beta() {
                 </p>
                 {wantsInterview && (
                   <a
-                    href="https://cal.eu/lara-valls/helixa-interview"
+                    href="https://www.cal.eu/lara-valls/helixa-interview"
                     target="_blank"
                     rel="noopener noreferrer"
                     style={{
