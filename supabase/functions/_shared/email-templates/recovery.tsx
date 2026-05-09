@@ -62,7 +62,7 @@ const text = {
 }
 const button = {
   backgroundColor: '#E8C16F',
-  color: '#ffffff',
+  color: '#000000',
   fontSize: '14px',
   borderRadius: '16px',
   padding: '12px 20px',
