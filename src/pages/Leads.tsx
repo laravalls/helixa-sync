@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 
 interface Signup {
   id: string;
@@ -9,7 +8,7 @@ interface Signup {
   interest: string;
   current_tools: string | null;
   want_most: string | null;
-  wants_interview: boolean;
+  source: string;
 }
 
 export default function Leads() {
@@ -18,14 +17,13 @@ export default function Leads() {
   const [filter, setFilter] = useState("");
 
   useEffect(() => {
-    supabase
-      .from("beta_signups")
-      .select("id, created_at, name, email, interest, current_tools, want_most, wants_interview")
-      .order("created_at", { ascending: false })
-      .then(({ data }) => {
-        setRows((data as Signup[]) ?? []);
+    fetch("/api/signups")
+      .then((r) => r.json())
+      .then((data) => {
+        setRows(Array.isArray(data) ? data : []);
         setLoading(false);
-      });
+      })
+      .catch(() => setLoading(false));
   }, []);
 
   const filtered = rows.filter((r) => {
@@ -37,11 +35,20 @@ export default function Leads() {
     );
   });
 
-  const interviewCount = rows.filter((r) => r.wants_interview).length;
-
   const fmtDate = (iso: string) => {
     const d = new Date(iso);
-    return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+    return d.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  };
+
+  const interestLabel: Record<string, string> = {
+    ttc: "TTC",
+    cycle_sync: "Cycle Sync",
+    pcos: "PCOS",
+    exploring: "Exploring",
   };
 
   const mono: React.CSSProperties = {
@@ -59,10 +66,14 @@ export default function Leads() {
       }}
     >
       <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-        <h1 style={{ fontWeight: 300, fontSize: 28, marginBottom: 24 }}>Beta Leads</h1>
+        <h1 style={{ fontWeight: 300, fontSize: 28, marginBottom: 24 }}>
+          Beta Leads
+        </h1>
 
         {/* Stat cards */}
-        <div style={{ display: "flex", gap: 16, marginBottom: 24, flexWrap: "wrap" }}>
+        <div
+          style={{ display: "flex", gap: 16, marginBottom: 24, flexWrap: "wrap" }}
+        >
           <div
             style={{
               flex: "1 1 200px",
@@ -72,25 +83,50 @@ export default function Leads() {
               borderRadius: 12,
             }}
           >
-            <p style={{ fontSize: 12, color: "#8B8478", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4, ...mono }}>
+            <p
+              style={{
+                fontSize: 12,
+                color: "#8B8478",
+                textTransform: "uppercase",
+                letterSpacing: "0.05em",
+                marginBottom: 4,
+                ...mono,
+              }}
+            >
               Total signups
             </p>
-            <p style={{ fontSize: 32, fontWeight: 300, color: "#E8C16F" }}>{rows.length}</p>
-          </div>
-          <div
-            style={{
-              flex: "1 1 200px",
-              padding: 20,
-              backgroundColor: "#14141A",
-              border: "1px solid rgba(255,255,255,0.06)",
-              borderRadius: 12,
-            }}
-          >
-            <p style={{ fontSize: 12, color: "#8B8478", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4, ...mono }}>
-              Want an interview
+            <p style={{ fontSize: 32, fontWeight: 300, color: "#E8C16F" }}>
+              {rows.length}
             </p>
-            <p style={{ fontSize: 32, fontWeight: 300, color: "#E8C16F" }}>{interviewCount}</p>
           </div>
+          {Object.entries(interestLabel).map(([key, label]) => (
+            <div
+              key={key}
+              style={{
+                flex: "1 1 160px",
+                padding: 20,
+                backgroundColor: "#14141A",
+                border: "1px solid rgba(255,255,255,0.06)",
+                borderRadius: 12,
+              }}
+            >
+              <p
+                style={{
+                  fontSize: 12,
+                  color: "#8B8478",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.05em",
+                  marginBottom: 4,
+                  ...mono,
+                }}
+              >
+                {label}
+              </p>
+              <p style={{ fontSize: 32, fontWeight: 300, color: "#E8C16F" }}>
+                {rows.filter((r) => r.interest === key).length}
+              </p>
+            </div>
+          ))}
         </div>
 
         {/* Filter */}
@@ -119,10 +155,20 @@ export default function Leads() {
           <p style={{ color: "#8B8478" }}>Loading…</p>
         ) : (
           <div style={{ overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
+            <table
+              style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}
+            >
               <thead>
                 <tr>
-                  {["Date", "Name", "Email", "Interest", "Current Tools", "Want Most", "Interview"].map((h) => (
+                  {[
+                    "Date",
+                    "Name",
+                    "Email",
+                    "Interest",
+                    "Current Tools",
+                    "Want Most",
+                    "Source",
+                  ].map((h) => (
                     <th
                       key={h}
                       style={{
@@ -148,23 +194,61 @@ export default function Leads() {
                   <tr
                     key={r.id}
                     style={{
-                      backgroundColor: i % 2 === 0 ? "transparent" : "rgba(255,255,255,0.02)",
+                      backgroundColor:
+                        i % 2 === 0 ? "transparent" : "rgba(255,255,255,0.02)",
                     }}
                   >
-                    <td style={{ padding: "10px 12px", whiteSpace: "nowrap", ...mono }}>{fmtDate(r.created_at)}</td>
+                    <td
+                      style={{
+                        padding: "10px 12px",
+                        whiteSpace: "nowrap",
+                        ...mono,
+                      }}
+                    >
+                      {fmtDate(r.created_at)}
+                    </td>
                     <td style={{ padding: "10px 12px" }}>{r.name ?? "—"}</td>
                     <td style={{ padding: "10px 12px", ...mono }}>{r.email}</td>
-                    <td style={{ padding: "10px 12px" }}>{r.interest}</td>
-                    <td style={{ padding: "10px 12px", maxWidth: 200, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.current_tools ?? "—"}</td>
-                    <td style={{ padding: "10px 12px", maxWidth: 200, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.want_most ?? "—"}</td>
-                    <td style={{ padding: "10px 12px", color: r.wants_interview ? "#E8C16F" : "#5A554E" }}>
-                      {r.wants_interview ? "Yes" : "No"}
+                    <td style={{ padding: "10px 12px" }}>
+                      {interestLabel[r.interest] ?? r.interest}
+                    </td>
+                    <td
+                      style={{
+                        padding: "10px 12px",
+                        maxWidth: 200,
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {r.current_tools ?? "—"}
+                    </td>
+                    <td
+                      style={{
+                        padding: "10px 12px",
+                        maxWidth: 200,
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {r.want_most ?? "—"}
+                    </td>
+                    <td style={{ padding: "10px 12px", color: "#5A554E", ...mono }}>
+                      {r.source}
                     </td>
                   </tr>
                 ))}
                 {filtered.length === 0 && (
                   <tr>
-                    <td colSpan={7} style={{ padding: 24, textAlign: "center", color: "#5A554E" }}>
+                    <td
+                      colSpan={7}
+                      style={{
+                        padding: 24,
+                        textAlign: "center",
+                        color: "#5A554E",
+                      }}
+                    >
                       {rows.length === 0 ? "No signups yet." : "No matches."}
                     </td>
                   </tr>

@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
 interface BetaSignupModalProps {
@@ -25,46 +24,35 @@ export const BetaSignupModal = ({ isOpen, onClose }: BetaSignupModalProps) => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("=== FORM SUBMISSION START ===");
-    console.log("Form data:", { email, name, interest, currentTools, wantMost });
-    console.log("Validation:", { isFormValid, submitting });
-    if (!isFormValid || submitting) {
-      console.warn("Submission blocked: form invalid or already submitting");
-      return;
-    }
+    if (!isFormValid || submitting) return;
 
     setSubmitting(true);
     try {
-      const payload = {
-        email: email.trim().toLowerCase(),
-        name: name.trim() || null,
-        interest,
-        current_tools: currentTools.trim() || null,
-        want_most: wantMost.trim() || null,
-        source: "app_modal",
-      };
-      console.log("Calling Supabase insert with payload:", payload);
-      const { data, error } = await supabase
-        .from("beta_signups")
-        .insert(payload)
-        .select();
-      console.log("Supabase response:", { data, error });
+      const res = await fetch("/api/signups", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: email.trim().toLowerCase(),
+          name: name.trim() || null,
+          interest,
+          current_tools: currentTools.trim() || null,
+          want_most: wantMost.trim() || null,
+          source: "app_modal",
+        }),
+      });
 
-      if (error) {
-        console.error("Supabase error:", error);
-        const isDuplicate =
-          error.code === "23505" || /duplicate/i.test(error.message);
+      if (!res.ok) {
+        const isDuplicate = res.status === 409;
         toast({
           title: isDuplicate ? "You're already on the list" : "Something went wrong",
           description: isDuplicate
             ? "This email is already signed up for the beta."
-            : error.message,
+            : "Please try again.",
           variant: isDuplicate ? "default" : "destructive",
         });
         return;
       }
 
-      console.log("Success! Inserted row:", data);
       setSubmitted(true);
       toast({
         title: "You're in!",
@@ -75,17 +63,14 @@ export const BetaSignupModal = ({ isOpen, onClose }: BetaSignupModalProps) => {
       setInterest("");
       setCurrentTools("");
       setWantMost("");
-    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      console.error("Caught network/unexpected error:", err);
+    } catch {
       toast({
         title: "Network error",
-        description: message,
+        description: "Check your connection and try again.",
         variant: "destructive",
       });
     } finally {
       setSubmitting(false);
-      console.log("=== FORM SUBMISSION END ===");
     }
   };
 
