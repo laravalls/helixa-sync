@@ -3,13 +3,21 @@ import { ClerkProvider } from "@clerk/react";
 import App from "./App.tsx";
 import "./index.css";
 
-createRoot(document.getElementById("root")!).render(
-  <ClerkProvider
-    publishableKey={import.meta.env.VITE_CLERK_PUBLISHABLE_KEY}
-    signInFallbackRedirectUrl="/"
-    signUpFallbackRedirectUrl="/onboarding"
-    afterSignOutUrl="/sign-in"
-  >
+const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+
+const root = (
+  PUBLISHABLE_KEY ? (
+    <ClerkProvider
+      publishableKey={PUBLISHABLE_KEY}
+      signInFallbackRedirectUrl="/"
+      signUpFallbackRedirectUrl="/onboarding"
+      afterSignOutUrl="/sign-in"
+    >
+      <App />
+    </ClerkProvider>
+  ) : (
     <App />
-  </ClerkProvider>
+  )
 );
+
+createRoot(document.getElementById("root")!).render(root);
