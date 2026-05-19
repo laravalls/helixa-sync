@@ -16,8 +16,10 @@ import Profile from "./pages/Profile.tsx";
 import Premium from "./pages/Premium.tsx";
 import Beta from "./pages/Beta.tsx";
 import Leads from "./pages/Leads.tsx";
+import SignIn from "./pages/SignIn.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import { OnboardingGuard } from "./components/OnboardingGuard";
+import { AuthGuard } from "./components/AuthGuard";
 
 const queryClient = new QueryClient();
 
@@ -27,25 +29,30 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <OnboardingGuard>
-        <Routes>
-          <Route path="/" element={<Today />} />
-          <Route path="/onboarding" element={<Onboarding />} />
-          <Route path="/movement" element={<MovementDetail />} />
-          <Route path="/plate" element={<PlateDetail />} />
-          <Route path="/stack" element={<StackDetail />} />
-          <Route path="/recovery" element={<RecoveryDetail />} />
-          <Route path="/connections" element={<Connections />} />
-          <Route path="/research" element={<Research />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/premium" element={<Premium />} />
-          <Route path="/beta" element={<Beta />} />
-          <Route path="/leads" element={<Leads />} />
-          <Route path="/styleguide" element={<Index />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-        </OnboardingGuard>
+        <AuthGuard>
+          <OnboardingGuard>
+            <Routes>
+              {/* Public */}
+              <Route path="/sign-in/*" element={<SignIn />} />
+              <Route path="/beta" element={<Beta />} />
+              <Route path="/leads" element={<Leads />} />
+
+              {/* Protected */}
+              <Route path="/" element={<Today />} />
+              <Route path="/onboarding" element={<Onboarding />} />
+              <Route path="/movement" element={<MovementDetail />} />
+              <Route path="/plate" element={<PlateDetail />} />
+              <Route path="/stack" element={<StackDetail />} />
+              <Route path="/recovery" element={<RecoveryDetail />} />
+              <Route path="/connections" element={<Connections />} />
+              <Route path="/research" element={<Research />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/premium" element={<Premium />} />
+              <Route path="/styleguide" element={<Index />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </OnboardingGuard>
+        </AuthGuard>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
