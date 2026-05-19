@@ -1,13 +1,23 @@
 import { useAuth } from "@clerk/react";
 import { Navigate, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
 
 const PUBLIC_PATHS = ["/sign-in", "/onboarding", "/beta", "/leads"];
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
   const { isLoaded, isSignedIn } = useAuth();
   const location = useLocation();
+  const [timedOut, setTimedOut] = useState(false);
 
-  if (!isLoaded) {
+  // If Clerk hasn't loaded in 4s (domain mismatch, network issue, etc.)
+  // stop blocking and render the app so it isn't a white screen.
+  useEffect(() => {
+    if (isLoaded) return;
+    const t = setTimeout(() => setTimedOut(true), 4000);
+    return () => clearTimeout(t);
+  }, [isLoaded]);
+
+  if (!isLoaded && !timedOut) {
     return (
       <div
         style={{
@@ -35,7 +45,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
 
   const isPublic = PUBLIC_PATHS.some((p) => location.pathname.startsWith(p));
 
-  if (!isSignedIn && !isPublic) {
+  if (isLoaded && !isSignedIn && !isPublic) {
     return <Navigate to="/sign-in" state={{ from: location }} replace />;
   }
 
