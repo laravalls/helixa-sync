@@ -30,6 +30,8 @@ import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { BottomNav } from "@/components/BottomNav";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@clerk/react";
+import { parseAppleHealthExport } from "@/lib/appleHealthImport";
 
 type Status = "connected" | "available" | "premium";
 
@@ -77,8 +79,8 @@ const CATEGORIES: Category[] = [
         name: "Apple Watch",
         status: "available",
         Icon: Watch,
-        description: "Sync heart rate, workouts, and sleep data",
-        dataPoints: ["Heart rate", "Workouts", "Sleep stages", "Activity rings"],
+        description: "Sync HRV, resting heart rate, sleep, steps, and energy",
+        dataPoints: ["HRV", "Resting heart rate", "Sleep hours", "Steps & active energy"],
       },
       {
         id: "whoop",
@@ -318,11 +320,18 @@ const StatusBadge = ({ status }: { status: Status }) => {
 const Connections = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { getToken } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [connections, setConnections] = useState<Record<string, Status>>({});
   const [active, setActive] = useState<Integration | null>(null);
   const [requestOpen, setRequestOpen] = useState(false);
   const [requestText, setRequestText] = useState("");
+  const [importState, setImportState] = useState<"idle" | "parsing" | "uploading" | "done" | "error">("idle");
+  const [importResult, setImportResult] = useState<{
+    days: number;
+    latest: { date: string; score: number; guidance: string } | null;
+  } | null>(null);
+  const [importError, setImportError] = useState<string | null>(null);
   const [toggles, setToggles] = useState<Record<string, boolean>>(() => {
     try {
       const raw = localStorage.getItem(TOGGLES_KEY);
@@ -368,6 +377,46 @@ const Connections = () => {
   };
 
   const activeStatus = active ? getStatus(active) : null;
+
+  useEffect(() => {
+    if (active?.id !== "apple_watch") {
+      setImportState("idle");
+      setImportResult(null);
+      setImportError(null);
+    }
+  }, [active]);
+
+  const handleAppleHealthUpload = async (file: File) => {
+    setImportError(null);
+    setImportResult(null);
+    setImportState("parsing");
+    try {
+      const { payload, days } = await parseAppleHealthExport(file);
+
+      setImportState("uploading");
+      const jwt = await getToken();
+      const tokenRes = await fetch("/api/health-sync-token", {
+        headers: { Authorization: `Bearer ${jwt}` },
+      });
+      if (!tokenRes.ok) throw new Error("Couldn't authenticate. Please try again.");
+      const { token } = await tokenRes.json();
+
+      const ingestRes = await fetch(`/api/health-ingest?token=${token}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!ingestRes.ok) throw new Error("Couldn't upload your health data. Please try again.");
+      const result = await ingestRes.json();
+
+      setImportResult({ days: result.days ?? days, latest: result.latest ?? null });
+      setImportState("done");
+      if (active) handleConnect(active);
+    } catch (e) {
+      setImportError(e instanceof Error ? e.message : "Something went wrong reading that file.");
+      setImportState("error");
+    }
+  };
 
   return (
     <main className="min-h-screen bg-background text-cream page-fade pb-24">
@@ -640,7 +689,96 @@ const Connections = () => {
                 </>
               )}
 
-              {activeStatus === "available" && (
+              {activeStatus === "available" && active.id === "apple_watch" && (
+                <>
+                  <h3 className="font-light text-xl text-cream mt-2">
+                    Connect {active.name}
+                  </h3>
+                  <SheetDescription asChild>
+                    <p className="text-sm text-secondary-dim leading-relaxed mt-3">
+                      Export your Apple Health data and upload it here. HelixA reads your
+                      HRV, resting heart rate, sleep stages, steps, VO2 max, active energy,
+                      and exercise time, then computes your readiness score.
+                    </p>
+                  </SheetDescription>
+                  <ol className="mt-4 space-y-2 text-sm text-cream list-decimal list-inside">
+                    <li>In the Health app, go to your profile → Export All Health Data.</li>
+                    <li>
+                      Or use the "Health Auto Export" app to generate a{" "}
+                      <span className="text-cream">HealthAutoExport-*.csv</span> export.zip.
+                    </li>
+                    <li>Upload the export.zip file below.</li>
+                  </ol>
+
+                  <div className="mt-5">
+                    <input
+                      id="apple-health-zip"
+                      type="file"
+                      accept=".zip"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) handleAppleHealthUpload(file);
+                        e.target.value = "";
+                      }}
+                    />
+                    <label
+                      htmlFor="apple-health-zip"
+                      className={cn(
+                        "press flex items-center justify-center w-full h-12 font-mono-data text-[12px] tracking-[0.32em] uppercase rounded-full halo-gold transition-opacity cursor-pointer",
+                        importState === "parsing" || importState === "uploading"
+                          ? "bg-surface-2 text-tertiary-dim pointer-events-none"
+                          : "bg-primary text-primary-foreground hover:opacity-95",
+                      )}
+                    >
+                      {importState === "parsing"
+                        ? "Reading export…"
+                        : importState === "uploading"
+                          ? "Uploading…"
+                          : "Choose export.zip"}
+                    </label>
+
+                    {importState === "done" && importResult && (
+                      <div className="mt-4 bg-surface-1 border border-accent-soft rounded-2xl p-4">
+                        <div className="flex items-center gap-2 text-sm text-cream">
+                          <Check size={14} strokeWidth={1.5} className="text-primary shrink-0" />
+                          <span>
+                            Imported {importResult.days} day{importResult.days === 1 ? "" : "s"}{" "}
+                            of health data.
+                          </span>
+                        </div>
+                        {importResult.latest && (
+                          <div className="mt-3 pt-3 border-t border-white/[0.06]">
+                            <div className="font-mono-data text-[10px] tracking-[0.28em] uppercase text-tertiary-dim">
+                              Latest readiness score · {importResult.latest.date}
+                            </div>
+                            <div className="font-light text-3xl text-cream mt-1">
+                              {importResult.latest.score}
+                              <span className="text-base text-tertiary-dim">/100</span>
+                            </div>
+                            <p className="text-[12px] text-secondary-dim mt-2 leading-relaxed">
+                              {importResult.latest.guidance}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {importState === "error" && importError && (
+                      <div className="mt-4 bg-surface-1 border border-critical/40 rounded-2xl p-4 text-sm text-critical">
+                        {importError}
+                      </div>
+                    )}
+                  </div>
+
+                  <p className="text-[11px] text-tertiary-dim mt-6 leading-relaxed">
+                    HelixA only reads data from your export. We never write to {active.name}{" "}
+                    or share your data.
+                  </p>
+                </>
+              )}
+
+              {activeStatus === "available" && active.id !== "apple_watch" && (
                 <>
                   <h3 className="font-light text-xl text-cream mt-2">
                     Connect {active.name}
