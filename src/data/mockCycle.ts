@@ -51,7 +51,7 @@ export interface DayPlan {
   phase_label: string;
   phase_summary: string;
   alert: string;
-  hormone_readout: string;
+  status_readout: string;
   movement: Movement;
   plate: Plate;
   stack: StackItem[];
@@ -198,4 +198,73 @@ export const HORMONE_CURVES: HormoneCurves = {
   progesterone: [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 8, 12, 15, 20, 30, 45, 58, 68, 72, 70, 60, 45, 30, 20, 12, 8, 6, 5],
   lh: [10, 10, 10, 10, 12, 12, 15, 18, 22, 30, 55, 85, 95, 80, 30, 15, 12, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10],
   fsh: [25, 30, 28, 22, 18, 15, 15, 15, 14, 14, 16, 18, 22, 20, 15, 15, 15, 15, 15, 15, 15, 15, 15, 18, 22, 25, 28, 28],
+};
+
+// General (non-cycle) recovery trend: 14-day HRV, resting heart rate, and
+// sleep history. Used by the "Performance" focus area's Recovery Status chart.
+export interface RecoveryTrend {
+  hrv: number[];
+  resting_hr: number[];
+  sleep_hours: number[];
+}
+
+export const RECOVERY_TREND: RecoveryTrend = {
+  hrv: [44, 46, 45, 42, 40, 38, 41, 43, 47, 46, 44, 39, 37, 38],
+  resting_hr: [56, 55, 56, 58, 59, 61, 59, 57, 55, 56, 57, 60, 61, 60],
+  sleep_hours: [7.4, 7.1, 7.6, 6.8, 6.5, 6.2, 6.9, 7.3, 7.8, 7.5, 7.2, 6.4, 6.1, 6.6],
+};
+
+// Default, gender-neutral focus area: a general recovery/performance protocol
+// driven by HRV, resting heart rate, and sleep — no cycle data required.
+export const PERFORMANCE_DAY: DayPlan = {
+  phase_label: "Recovery Focus",
+  phase_summary:
+    "HRV is below your 7-day average and resting heart rate is elevated. Today calls for lower intensity and extra sleep.",
+  alert:
+    "Recovery dipped overnight. Scale back training intensity and get to bed early tonight.",
+  status_readout:
+    "Recovery 72%. Resting heart rate is 4bpm above baseline — your body is asking for an easier day.",
+  movement: {
+    name: "Active Recovery Flow",
+    duration_min: 25,
+    type: "mobility",
+    intensity: "low",
+    moves: [
+      { name: "Cat-cow", reps: "10 slow", why_today: "Spinal mobility to start the day" },
+      { name: "Glute bridge", reps: "12 reps", why_today: "Activates the posterior chain without strain" },
+      { name: "World's greatest stretch", reps: "8 each side", why_today: "Opens hips and thoracic spine" },
+      { name: "Box breathing walk", reps: "10 min", why_today: "Lowers heart rate, primes recovery" },
+    ],
+    phase_reason: "Your HRV is below baseline — high-intensity work today would add unnecessary strain.",
+    wearable_adjustment: "HRV is 12% below your 7-day average. Stay in zone 1-2 today.",
+  },
+  plate: {
+    key_nutrients: ["Magnesium", "Omega-3", "Complex carbs", "Protein"],
+    breakfast: "Greek yogurt, berries, walnuts, honey",
+    lunch: "Grilled chicken, quinoa, roasted vegetables",
+    dinner: "Salmon, sweet potato, sauteed greens",
+    snack: "Almonds and an apple",
+    phase_reason: "Anti-inflammatory, blood-sugar-stable foods support recovery.",
+    ttc_note: null,
+  },
+  stack: [
+    { name: "Magnesium glycinate", dose: "400mg", timing: "Evening", why: "Supports recovery and sleep quality" },
+    { name: "Omega-3", dose: "2g EPA/DHA", timing: "With lunch", why: "Reduces inflammation, supports HRV" },
+    { name: "Vitamin D3 + K2", dose: "2000 IU / 100mcg", timing: "Morning", why: "Baseline hormone and bone support" },
+    { name: "Creatine monohydrate", dose: "5g", timing: "Anytime", why: "Supports recovery and lean mass" },
+  ],
+  practice: {
+    title: "Down-Regulation Breath",
+    duration_min: 8,
+    theme: "Shifting out of sympathetic drive",
+    script:
+      "Sit comfortably. Let your shoulders drop. Inhale for 4, exhale for 8. Each exhale should feel like releasing a breath you didn't know you were holding.",
+    breath_pattern: "4-second inhale, 8-second exhale",
+  },
+  recovery: {
+    sleep_target_h: 8.5,
+    wind_down_time: "22:00",
+    wearable_insight:
+      "Your HRV dropped 12% overnight. Add 30 minutes of sleep and skip the second coffee.",
+  },
 };

@@ -21,18 +21,21 @@ import {
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 import { saveUserCycle, getUserCycle } from "@/lib/db";
 import { saveCycleData, hasCompletedOnboarding } from "@/lib/onboardingCheck";
 import { useToast } from "@/hooks/use-toast";
 
 type Mode =
+  | "performance"
+  | "recovery"
+  | "longevity"
   | "cycle_sync"
   | "ttc"
   | "pcos"
-  | "acne"
-  | "pregnancy"
-  | "perimenopause";
+  | "perimenopause"
+  | "pregnancy";
 
 interface ModeCard {
   id: Mode;
@@ -41,21 +44,27 @@ interface ModeCard {
   available: boolean;
 }
 
+// General, gender-neutral focus areas everyone can pick from. Cycle-related
+// focus areas are included as options (not the default) — cycle tracking
+// itself is a separate opt-in toggle below, so it can layer on top of any
+// focus area.
 const MODE_CARDS: ModeCard[] = [
-  { id: "ttc", name: "Trying to Conceive", description: "Conception windows, implantation guidance, partner mode.", available: true },
-  { id: "cycle_sync", name: "Cycle Sync", description: "Optimize workouts, nutrition, and recovery across 28 days.", available: true },
+  { id: "performance", name: "Performance", description: "Train with readiness-based intensity, recovery tracking, and sleep optimization.", available: true },
+  { id: "recovery", name: "Recovery & Sleep", description: "Build your day around HRV, sleep architecture, and stress balance.", available: true },
+  { id: "longevity", name: "Longevity", description: "Track VO2 max, resting heart rate, and metabolic trends over time.", available: true },
+  { id: "cycle_sync", name: "Cycle Sync", description: "Optimize workouts, nutrition, and recovery around your cycle.", available: true },
+  { id: "ttc", name: "Trying to Conceive", description: "Conception windows, implantation guidance, partner mode.", available: false },
   { id: "pcos", name: "PCOS Management", description: "Irregular cycles, insulin resistance, symptom tracking, acne flares.", available: false },
-  { id: "acne", name: "Acne Control", description: "Track flares by phase, targeted supplement stacks, skin barrier support.", available: false },
-  { id: "pregnancy", name: "Pregnancy", description: "Trimester-specific guidance, symptom tracking, prep for postpartum.", available: false },
   { id: "perimenopause", name: "Perimenopause", description: "Irregular cycles, hormone shifts, HRT tracking, symptom management.", available: false },
+  { id: "pregnancy", name: "Pregnancy", description: "Trimester-specific guidance, symptom tracking, prep for postpartum.", available: false },
 ];
 
 const OUTCOMES: { label: string; body: string }[] = [
-  { label: "Workouts", body: "Train when your hormones peak, recover when they dip." },
-  { label: "Supplements", body: "Phase-specific stacks. Magnesium in luteal, iron in menstrual." },
+  { label: "Workouts", body: "Train at the right intensity, recover on the days your body actually needs it." },
+  { label: "Supplements", body: "Personalized stacks based on your recovery, sleep, and goals." },
   { label: "Sleep", body: "Know why you need 9 hours today and 7 tomorrow." },
-  { label: "Mood", body: "Predict the luteal crash. Adjust your week accordingly." },
-  { label: "Calendar", body: "Front-load big meetings to follicular. Protect luteal for deep work." },
+  { label: "Energy", body: "Spot dips before they hit, and adjust your week accordingly." },
+  { label: "Calendar", body: "Front-load big meetings to your high-energy days. Protect low-energy days for deep work." },
   { label: "Events", body: "Plan launches, travel, and presentations around your biology." },
 ];
 
@@ -84,10 +93,13 @@ const Onboarding = () => {
   const [lastPeriod, setLastPeriod] = useState<Date>(() => subDays(new Date(), 18));
   const [cycleLength, setCycleLength] = useState(28);
   const [selectedMode, setSelectedMode] = useState<Mode | null>(null);
+  const [trackCycle, setTrackCycle] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [syncPhase, setSyncPhase] = useState<"in" | "converge" | "settle">("in");
 
-  const needsCycleStep = selectedMode === "cycle_sync" || selectedMode === "ttc";
+  // Cycle tracking is an optional pillar: on by default if "Cycle Sync" is the
+  // chosen focus, but can be toggled on/off independently of focus area.
+  const needsCycleStep = trackCycle;
   const totalSteps = needsCycleStep ? TOTAL_BASE_STEPS + 1 : TOTAL_BASE_STEPS;
 
   // Skip if data exists
@@ -265,7 +277,7 @@ const Onboarding = () => {
               The one app that syncs them all.
             </h1>
             <p className="mt-4 text-sm text-secondary-dim leading-relaxed max-w-[340px]">
-              Biohacking, decoded for women. One body. Five life stages. Twenty-eight days at a time.
+              Your intelligent health agent. One body, every metric, a protocol built around you — day by day.
             </p>
           </section>
         )}
@@ -358,7 +370,7 @@ const Onboarding = () => {
             </div>
 
             <p className="mt-2 text-xs text-secondary-dim text-center leading-relaxed">
-              15 apps. One brain. Your hormones are the missing link.
+              15 apps. One brain. Your data, finally connected.
             </p>
           </section>
         )}
@@ -375,7 +387,7 @@ const Onboarding = () => {
                 What you'll optimize
               </div>
               <p className="mt-3 text-xs text-secondary-dim leading-relaxed max-w-[340px] mx-auto">
-                HelixA syncs your cycle to everything you already track.
+                HelixA syncs your data to everything you already track.
               </p>
             </div>
 
@@ -410,7 +422,7 @@ const Onboarding = () => {
                 What's your focus right now?
               </div>
               <p className="mt-3 text-xs text-secondary-dim leading-relaxed max-w-[340px] mx-auto">
-                HelixA adapts to your life stage. Switch modes anytime.
+                HelixA adapts to your goals. Switch focus anytime.
               </p>
             </div>
 
@@ -420,7 +432,11 @@ const Onboarding = () => {
                 return (
                   <div
                     key={card.id}
-                    onClick={() => card.available && setSelectedMode(card.id)}
+                    onClick={() => {
+                      if (!card.available) return;
+                      setSelectedMode(card.id);
+                      if (card.id === "cycle_sync") setTrackCycle(true);
+                    }}
                     className={cn(
                       "rounded-2xl p-4 border bg-surface-1 transition-all duration-300 cursor-pointer",
                       isSelected
@@ -462,8 +478,25 @@ const Onboarding = () => {
             </div>
 
             <p className="mt-5 text-[10px] text-tertiary-dim text-center leading-relaxed">
-              More modes in development: Postpartum, Menopause, Athlete Performance.
+              More focus areas in development: Trying to Conceive, PCOS, Perimenopause, Pregnancy.
             </p>
+
+            {/* Optional cycle-tracking pillar — layers on top of any focus area */}
+            <div className="mt-5 rounded-2xl p-4 border border-white/[0.06] bg-surface-1 flex items-center justify-between gap-4">
+              <div className="flex-1 min-w-0">
+                <div className="font-light text-[15px] text-cream leading-tight">
+                  Track menstrual cycle
+                </div>
+                <p className="text-[11px] text-secondary-dim mt-1.5 leading-relaxed">
+                  Optional. Adds cycle-aware insights — phase-based training, nutrition, and recovery guidance layered onto your protocol.
+                </p>
+              </div>
+              <Switch
+                checked={trackCycle}
+                onCheckedChange={setTrackCycle}
+                aria-label="Track menstrual cycle"
+              />
+            </div>
           </section>
         )}
 

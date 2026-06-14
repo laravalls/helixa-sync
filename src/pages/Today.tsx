@@ -13,6 +13,7 @@ import {
   X,
 } from "lucide-react";
 import {
+  PERFORMANCE_DAY,
   CYCLE_SYNC_DAY_18,
   TTC_DAY_18,
   WEARABLE_DATA,
@@ -25,6 +26,7 @@ import {
   SheetDescription,
 } from "@/components/ui/sheet";
 import { HormoneChart } from "@/components/HormoneChart";
+import { RecoveryChart } from "@/components/RecoveryChart";
 import { CycleRing } from "@/components/CycleRing";
 import { NotificationsPanel } from "@/components/NotificationsPanel";
 import { BottomNav } from "@/components/BottomNav";
@@ -35,11 +37,15 @@ const CYCLE_DAY = 18;
 const CYCLE_LENGTH = 28;
 
 type ModeId =
+  | "performance"
   | "cycle_sync"
   | "ttc"
   | "pregnancy"
   | "postpartum"
   | "perimenopause";
+
+// Focus areas that layer cycle-aware guidance on top of the general protocol.
+const CYCLE_MODES: ModeId[] = ["cycle_sync", "ttc", "pregnancy", "postpartum", "perimenopause"];
 
 interface ModeDef {
   id: ModeId;
@@ -49,8 +55,15 @@ interface ModeDef {
 }
 
 const MODES: ModeDef[] = [
-  { id: "ttc", label: "TTC", locked: false },
+  { id: "performance", label: "Performance", locked: false },
   { id: "cycle_sync", label: "Cycle Sync", locked: false },
+  {
+    id: "ttc",
+    label: "TTC",
+    locked: true,
+    teaser:
+      "Conception windows, implantation guidance, and a stack tuned for the days that matter most — layered on top of your existing protocol.",
+  },
   {
     id: "pregnancy",
     label: "Pregnancy",
@@ -63,7 +76,7 @@ const MODES: ModeDef[] = [
     label: "Postpartum",
     locked: true,
     teaser:
-      "A non-bounce-back recovery layer. Pelvic floor and core re-coordination, lactation-aware nutrition, and sleep architecture rebuilt around feeds. Hormone shifts tracked with the same precision as the cycle.",
+      "A non-bounce-back recovery layer. Pelvic floor and core re-coordination, lactation-aware nutrition, and sleep architecture rebuilt around feeds. Hormone shifts tracked with the same precision as everything else.",
   },
   {
     id: "perimenopause",
@@ -75,11 +88,13 @@ const MODES: ModeDef[] = [
 ];
 
 const PLAN_BY_MODE: Partial<Record<ModeId, DayPlan>> = {
+  performance: PERFORMANCE_DAY,
   cycle_sync: CYCLE_SYNC_DAY_18,
   ttc: TTC_DAY_18,
 };
 
-const COLOR_BY_MODE: Record<"cycle_sync" | "ttc", string> = {
+const COLOR_BY_MODE: Record<"performance" | "cycle_sync" | "ttc", string> = {
+  performance: "#E8C16F", // Bioluminescent gold
   cycle_sync: "#A088B5", // Luteal
   ttc: "#E8C16F", // Bioluminescent gold
 };
@@ -87,14 +102,17 @@ const COLOR_BY_MODE: Record<"cycle_sync" | "ttc", string> = {
 interface HeroRingProps {
   color: string;
   phaseLabel: string;
+  value: number;
+  max: number;
+  unitLabel: string;
 }
 
-const HeroRing = ({ color, phaseLabel }: HeroRingProps) => {
+const HeroRing = ({ color, phaseLabel, value, max, unitLabel }: HeroRingProps) => {
   const size = 240;
   const stroke = 12;
   const radius = (size - stroke) / 2;
   const circumference = 2 * Math.PI * radius;
-  const target = CYCLE_DAY / CYCLE_LENGTH; // ~0.643
+  const target = value / max;
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
@@ -157,10 +175,10 @@ const HeroRing = ({ color, phaseLabel }: HeroRingProps) => {
           className="font-mono-data text-cream"
           style={{ fontSize: 64, fontWeight: 400, lineHeight: 1 }}
         >
-          {CYCLE_DAY}
+          {value}
         </span>
         <span className="font-mono-data text-[10px] tracking-[0.4em] uppercase text-secondary-dim mt-2">
-          Day
+          {unitLabel}
         </span>
         <span
           key={phaseLabel}
@@ -213,7 +231,7 @@ const DataCard = ({ label, metric, description, icon, onClick }: DataCardProps) 
 const Today = () => {
   const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
-  const [activeMode, setActiveMode] = useState<ModeId>("ttc");
+  const [activeMode, setActiveMode] = useState<ModeId>("performance");
   const [lockedSheet, setLockedSheet] = useState<ModeDef | null>(null);
   const [alertsOpen, setAlertsOpen] = useState(false);
   const [isBetaModalOpen, setIsBetaModalOpen] = useState(false);
@@ -247,11 +265,19 @@ const Today = () => {
   }, []);
 
   const data = useMemo<DayPlan>(
-    () => PLAN_BY_MODE[activeMode] ?? CYCLE_SYNC_DAY_18,
+    () => PLAN_BY_MODE[activeMode] ?? PERFORMANCE_DAY,
     [activeMode],
   );
+  const isCycleMode = CYCLE_MODES.includes(activeMode);
   const ringColor =
-    activeMode === "ttc" ? COLOR_BY_MODE.ttc : COLOR_BY_MODE.cycle_sync;
+    activeMode === "ttc"
+      ? COLOR_BY_MODE.ttc
+      : activeMode === "cycle_sync"
+        ? COLOR_BY_MODE.cycle_sync
+        : COLOR_BY_MODE.performance;
+  const ringValue = isCycleMode ? CYCLE_DAY : WEARABLE_DATA.recovery_score;
+  const ringMax = isCycleMode ? CYCLE_LENGTH : 100;
+  const ringUnitLabel = isCycleMode ? "Day" : "Readiness";
 
   const handleModeTap = (mode: ModeDef) => {
     if (mode.locked) {
@@ -415,7 +441,13 @@ const Today = () => {
 
           {/* HERO RING */}
           <section className="pt-8 flex flex-col items-center">
-            <HeroRing color={ringColor} phaseLabel={data.phase_label} />
+            <HeroRing
+              color={ringColor}
+              phaseLabel={data.phase_label}
+              value={ringValue}
+              max={ringMax}
+              unitLabel={ringUnitLabel}
+            />
 
             <p
               key={`summary-${activeMode}`}
@@ -504,20 +536,20 @@ const Today = () => {
             <p className="text-sm text-cream leading-relaxed">{data.alert}</p>
           </section>
 
-          {/* HORMONE CHART placeholder */}
+          {/* RECOVERY STATUS */}
           <section className="bg-surface-1 rounded-2xl p-5 border border-white/[0.06]">
             <div className="font-mono-data text-[10px] tracking-[0.32em] uppercase text-secondary-dim">
-              Hormone Status
+              Recovery Status
             </div>
             <div className="mt-4">
-              <HormoneChart />
+              {isCycleMode ? <HormoneChart /> : <RecoveryChart />}
             </div>
             <p
-              key={`hormone-${activeMode}`}
+              key={`status-${activeMode}`}
               className="text-xs text-secondary-dim mt-5 leading-relaxed animate-fade-in"
               style={{ animationDuration: "400ms" }}
             >
-              {data.hormone_readout}
+              {data.status_readout}
             </p>
           </section>
 
@@ -553,15 +585,17 @@ const Today = () => {
             />
           </section>
 
-          {/* CYCLE HELIX placeholder */}
-          <section>
-            <div className="font-mono-data text-[10px] tracking-[0.32em] uppercase text-secondary-dim mb-4">
-              Your Cycle
-            </div>
-            <div className="rounded-2xl border border-white/[0.06] bg-surface-1 p-5">
-              <CycleRing today={CYCLE_DAY} />
-            </div>
-          </section>
+          {/* CYCLE RING — only shown for the opt-in cycle-tracking pillar */}
+          {isCycleMode && (
+            <section>
+              <div className="font-mono-data text-[10px] tracking-[0.32em] uppercase text-secondary-dim mb-4">
+                Your Cycle
+              </div>
+              <div className="rounded-2xl border border-white/[0.06] bg-surface-1 p-5">
+                <CycleRing today={CYCLE_DAY} />
+              </div>
+            </section>
+          )}
         </div>
       </div>
 

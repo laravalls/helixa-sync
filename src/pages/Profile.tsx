@@ -32,7 +32,7 @@ const Profile = () => {
             <span className="font-mono-data text-2xl">H</span>
           </div>
           <h2 className="text-xl font-light mt-4">Hello there</h2>
-          <p className="text-sm text-secondary-dim mt-1">Cycle Sync · Day 18</p>
+          <p className="text-sm text-secondary-dim mt-1">Performance · Recovery 72%</p>
         </section>
 
         <section className="px-5 space-y-3">

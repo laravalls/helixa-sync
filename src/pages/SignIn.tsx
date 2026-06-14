@@ -42,7 +42,7 @@ export default function SignInPage() {
             fontFamily: "Inter, sans-serif",
           }}
         >
-          Sync your biology. Train with your cycle.
+          Sync your biology. Train with your data.
         </p>
       </div>
 

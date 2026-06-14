@@ -53,7 +53,7 @@ const Index = () => {
           </span>
           <h1 className="font-light text-6xl md:text-7xl mt-6 leading-[1.05] tracking-tight text-cream">
             A signal-clear interface for<br />
-            <span className="text-gold glow-text-gold">women's biology.</span>
+            <span className="text-gold glow-text-gold">your intelligent health agent.</span>
           </h1>
           <p className="text-secondary-dim mt-6 max-w-xl text-base leading-relaxed">
             Pure black canvas. Bioluminescent gold. No softness, no pastel — only
@@ -132,7 +132,7 @@ const Index = () => {
                 Body / Inter 400 & 500
               </span>
               <p className="text-base mt-3 text-cream">
-                Your follicular phase begins in 36 hours. Energy windows open
+                Your recovery window opens in 36 hours. Energy peaks fall
                 across morning and late afternoon.
               </p>
               <p className="text-sm mt-2 text-secondary-dim">
@@ -213,7 +213,7 @@ const Index = () => {
                   </span>
                 </div>
                 <span className="font-mono-data text-[10px] tracking-[0.28em] uppercase text-tertiary-dim">
-                  Day 14 / Ovulatory
+                  Day 14 / Recovery
                 </span>
               </div>
 
