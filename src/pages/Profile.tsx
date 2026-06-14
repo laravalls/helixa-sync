@@ -1,10 +1,12 @@
 import { useNavigate } from "react-router-dom";
+import { useClerk } from "@clerk/react";
 import { ChevronRight, Plug, Bell, Shield, Crown, LogOut, Settings as SettingsIcon } from "lucide-react";
 import { BottomNav } from "@/components/BottomNav";
 import { resetOnboarding } from "@/lib/onboardingCheck";
 
 const Profile = () => {
   const navigate = useNavigate();
+  const { signOut } = useClerk();
 
   const ROWS = [
     { label: "Cycle data", hint: "Last period · Day 18", onClick: () => navigate("/onboarding") },
@@ -51,6 +53,7 @@ const Profile = () => {
 
           <button
             type="button"
+            onClick={() => signOut(() => navigate("/sign-in"))}
             className="w-full mt-6 flex items-center justify-center gap-2 text-sm text-secondary-dim hover:text-cream transition-colors py-3"
           >
             <LogOut size={14} strokeWidth={1.5} />
