@@ -87,14 +87,20 @@ export const parseCsv = (text: string): string[][] => {
   return rows;
 };
 
-// Extracts the unit from a header like "Active Energy (kJ)" -> "kJ".
+// Extracts the unit from a header like "Active Energy (kJ)" -> "kJ", or
+// "VO2 Max (ml/(kg·min))" -> "ml/(kg·min)" (units can contain nested parens).
 const unitFromHeader = (header: string): string | undefined => {
-  const match = header.match(/\(([^)]+)\)\s*$/);
-  return match?.[1];
+  const start = header.indexOf("(");
+  const end = header.lastIndexOf(")");
+  if (start === -1 || end === -1 || end <= start) return undefined;
+  return header.slice(start + 1, end);
 };
 
-const headerLabel = (header: string): string =>
-  header.replace(/\([^)]*\)\s*$/, "").trim().toLowerCase();
+const headerLabel = (header: string): string => {
+  const start = header.indexOf("(");
+  const label = start === -1 ? header : header.slice(0, start);
+  return label.trim().toLowerCase();
+};
 
 // Converts the parsed CSV rows (header row first) into the JSON payload
 // shape expected by /api/health-ingest.
@@ -104,7 +110,12 @@ export const buildHealthIngestPayload = (rows: string[][]): HealthIngestPayload 
   }
 
   const header = rows[0];
-  const dateIndex = header.findIndex((h) => h.trim().toLowerCase() === "date");
+  // Health Auto Export's combined CSV uses "Date/Time" as the first column;
+  // other exports may simply use "Date". Accept either.
+  const dateIndex = header.findIndex((h) => {
+    const label = h.trim().toLowerCase();
+    return label === "date" || label.startsWith("date/time") || label.startsWith("date ");
+  });
   if (dateIndex === -1) {
     throw new Error("CSV file is missing a Date column.");
   }
