@@ -1,7 +1,9 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { randomBytes } from "crypto";
 import { verifyToken } from "@clerk/backend";
-import { sql } from "./_db";
+import { neon } from "@neondatabase/serverless";
+
+const sql = neon(process.env.DATABASE_URL!);
 
 async function getVerifiedUserId(req: VercelRequest): Promise<string | null> {
   const token = req.headers.authorization?.replace("Bearer ", "");

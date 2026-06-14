@@ -1,4 +1,4 @@
-import { sql } from "./_db";
+import type { NeonQueryFunction } from "@neondatabase/serverless";
 
 // Maps Health Auto Export metric names to the internal metric keys we store
 // in `health_metrics`. Covers the "core recovery set" plus the additional
@@ -140,9 +140,13 @@ const guidanceFor = (score: number): string => {
   return "Recovery is significantly reduced. Consider a rest or active recovery day and an early night.";
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Sql = NeonQueryFunction<any, any>;
+
 // Recomputes and stores the daily score for a user/date using health_metrics
-// for that day plus a 7-day trailing baseline (excluding that day).
-export const recomputeDailyScore = async (clerkUserId: string, date: string) => {
+// for that day plus a 7-day trailing baseline (excluding that day). Takes the
+// caller's neon `sql` instance so this module has no DB connection of its own.
+export const recomputeDailyScore = async (sql: Sql, clerkUserId: string, date: string) => {
   const dayRows = await sql`
     SELECT metric, value FROM health_metrics
     WHERE clerk_user_id = ${clerkUserId} AND date = ${date}

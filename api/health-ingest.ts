@@ -1,10 +1,16 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { sql } from "./_db";
-import { aggregateMetrics, recomputeDailyScore, type HealthAutoExportPayload } from "./_health";
+import { neon } from "@neondatabase/serverless";
+import {
+  aggregateMetrics,
+  recomputeDailyScore,
+  type HealthAutoExportPayload,
+} from "../src/server/healthScoring";
 
-// Webhook endpoint for the "Health Auto Export" iOS app. Authenticated via
-// a per-user opaque token (see health-sync-token.ts), not Clerk — the
-// request comes directly from the user's phone, not the web app.
+const sql = neon(process.env.DATABASE_URL!);
+
+// Ingest endpoint for Apple Health data. Authenticated via a per-user opaque
+// sync token (see health-sync-token.ts), not Clerk directly — the request
+// can come from the browser (manual export upload) or, in future, a device.
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "method not allowed" });
@@ -43,7 +49,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const scoresByDate = new Map<string, { score: number; guidance: string }>();
   for (const date of affectedDates) {
-    scoresByDate.set(date, await recomputeDailyScore(clerkUserId, date));
+    scoresByDate.set(date, await recomputeDailyScore(sql, clerkUserId, date));
   }
 
   const latestDate = [...affectedDates].sort().pop();

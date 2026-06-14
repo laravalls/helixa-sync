@@ -12,7 +12,7 @@ export interface HealthIngestPayload {
 
 // Maps a CSV column (matched by a case-insensitive prefix on the header,
 // before the trailing "(unit)") to the metric name expected by
-// api/_health.ts's METRIC_MAP.
+// src/server/healthScoring.ts's METRIC_MAP.
 const COLUMN_METRICS: { prefix: string; name: string }[] = [
   { prefix: "resting heart rate", name: "resting_heart_rate" },
   { prefix: "heart rate variability", name: "heart_rate_variability" },
