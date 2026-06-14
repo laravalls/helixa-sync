@@ -162,6 +162,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(401).json({ error: "missing sync token" });
   }
 
+  try {
   const tokenRows = await sql`
     SELECT clerk_user_id FROM health_sync_tokens WHERE token = ${token}
   `;
@@ -277,4 +278,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   return res.status(200).json({ ok: true, days: affectedDates.size, latest });
+  } catch (e) {
+    return res.status(500).json({ error: "internal error", detail: e instanceof Error ? e.message : String(e) });
+  }
 }
