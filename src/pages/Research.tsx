@@ -386,11 +386,11 @@ const Research = () => {
         {/* Hero */}
         <section className="px-5 pt-8 pb-6">
           <h2 className="font-light text-cream" style={{ fontSize: 28, lineHeight: 1.2 }}>
-            The science behind your biology
+            The science behind your protocol
           </h2>
           <p className="text-sm text-secondary-dim mt-3 max-w-[340px] leading-relaxed">
-            Curated studies on hormones, performance, and female physiology. Because most
-            research was done on men.
+            Curated studies on recovery, performance, nutrition, and hormones — including
+            research on cycle physiology for those who track it.
           </p>
         </section>
 

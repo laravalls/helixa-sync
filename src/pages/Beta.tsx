@@ -2,20 +2,23 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 const INTEREST_OPTIONS = [
+  { value: "performance", label: "Performance & training (readiness-based workouts)" },
+  { value: "recovery", label: "Recovery & sleep optimization" },
+  { value: "longevity", label: "Longevity & biomarker tracking" },
+  { value: "cycle_sync", label: "Cycle Sync (optimizing workouts and recovery around your cycle)" },
   { value: "ttc", label: "Trying to Conceive (fertility guidance)" },
-  { value: "cycle_sync", label: "Cycle Sync (optimizing workouts and recovery)" },
   { value: "pcos", label: "PCOS Management (irregular cycles, symptom tracking)" },
   { value: "exploring", label: "Just exploring (not sure yet)" },
 ];
 
 const FEATURES = [
   {
-    title: "Cycle-aware training",
-    body: "Workouts dialed to your follicular surge or luteal slowdown — not a generic 7-day split.",
+    title: "Readiness-based training",
+    body: "Workouts dialed to your HRV and recovery trends — not a generic 7-day split.",
   },
   {
-    title: "Nutrition that follows your hormones",
-    body: "Macro and micronutrient targets that shift with each phase, synced from MyFitnessPal or Cronometer.",
+    title: "Nutrition that adapts daily",
+    body: "Macro and micronutrient targets that shift with your training load and recovery, synced from MyFitnessPal or Cronometer.",
   },
   {
     title: "Recovery that actually adapts",
@@ -24,6 +27,10 @@ const FEATURES = [
   {
     title: "One calendar, one plan",
     body: "Hard meetings, hard workouts and rest days scheduled around your real biology, not a flat week.",
+  },
+  {
+    title: "Cycle-aware guidance (optional)",
+    body: "For those who track it: training, nutrition, and recovery guidance layered on top of your protocol, synced to your cycle.",
   },
 ];
 
@@ -45,7 +52,7 @@ export default function Beta() {
     window.scrollTo({ top: 0, left: 0 });
 
     const prevTitle = document.title;
-    document.title = "Join the HelixA beta — health that syncs to your cycle";
+    document.title = "Join the HelixA beta — your intelligent health agent";
 
     const setMeta = (name: string, content: string) => {
       let el = document.querySelector(`meta[name="${name}"]`) as HTMLMetaElement | null;
@@ -64,7 +71,7 @@ export default function Beta() {
 
     const restoreDesc = setMeta(
       "description",
-      "HelixA is the first app that syncs your wearables, nutrition, calendar and workouts to your menstrual cycle. Join the private beta."
+      "HelixA is your intelligent health agent — syncing your wearables, nutrition, calendar, and training into one daily protocol, with optional cycle-aware guidance. Join the private beta."
     );
 
     let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
@@ -236,7 +243,7 @@ export default function Beta() {
               marginBottom: 20,
             }}
           >
-            Health that finally syncs<br />to your biology.
+            Your intelligent<br />health agent.
           </h1>
           <p
             style={{
@@ -247,8 +254,9 @@ export default function Beta() {
               margin: "0 auto",
             }}
           >
-            Your hormones swing 400% across 28 days. Every wearable, workout app
-            and meal tracker ignores it. HelixA is the glue.
+            Your wearables, training, sleep, and nutrition all live in different
+            apps. HelixA is the glue — turning fragmented data into one
+            hyperpersonalized protocol, built around you.
           </p>
         </section>
 
@@ -280,10 +288,10 @@ export default function Beta() {
               The problem
             </p>
             <p style={{ fontSize: 15, color: "#8B8478", lineHeight: 1.7 }}>
-              95% of health research is based on male physiology. You're tracking
-              everything across 15 apps — Oura, Strava, MyFitnessPal, Clue, Google
-              Calendar — but nothing connects them to your cycle. So you push hard
-              when your body needs rest, and rest when you should be peaking.
+              Most health apps treat every body the same. You're tracking
+              everything across 15 apps — Oura, Strava, MyFitnessPal, Apple Health,
+              Google Calendar — but nothing connects them into one picture. So you
+              push hard when your body needs rest, and rest when you should be peaking.
             </p>
           </div>
 
@@ -308,9 +316,10 @@ export default function Beta() {
               The fix
             </p>
             <p style={{ fontSize: 15, color: "#F2EDE4", lineHeight: 1.7 }}>
-              One app that syncs your wearables, nutrition, calendar and workouts
-              to your menstrual cycle. Daily guidance on when to train hard, when
-              to rest, when to schedule that board meeting.
+              One agent that syncs your wearables, nutrition, calendar and workouts
+              into a single daily protocol. Guidance on when to train hard, when
+              to rest, and when to schedule that board meeting — with optional
+              cycle-aware insights for those who track it.
             </p>
           </div>
         </section>

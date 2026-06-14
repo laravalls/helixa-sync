@@ -40,20 +40,20 @@ const FEATURES: FeatureCard[] = [
   {
     id: "partner",
     icon: <Users size={20} strokeWidth={1.5} />,
-    title: "Share Your Cycle",
-    body: "Send your partner phase context so they understand your biology.",
+    title: "Partner Sharing",
+    body: "Send a partner or coach your recovery and protocol context — cycle context too, if you track it.",
   },
   {
     id: "clinician",
     icon: <FileText size={20} strokeWidth={1.5} />,
     title: "Medical Reports",
-    body: "3-month cycle + symptom reports for your doctor or fertility specialist.",
+    body: "3-month health and biomarker reports for your doctor or specialist.",
   },
   {
     id: "support",
     icon: <Headphones size={20} strokeWidth={1.5} />,
     title: "Expert Guidance",
-    body: "Direct access to HelixA's hormone optimization team.",
+    body: "Direct access to HelixA's health optimization team.",
   },
   {
     id: "pcos",
@@ -66,18 +66,18 @@ const FEATURES: FeatureCard[] = [
     id: "modes",
     icon: <InfinityIcon size={20} strokeWidth={1.5} />,
     title: "Lifetime Access",
-    body: "Pregnancy, postpartum, perimenopause as they launch.",
+    body: "New focus areas as they launch — Trying to Conceive, Pregnancy, Postpartum, Perimenopause.",
   },
 ];
 
 const INCLUDED = [
   "All premium integrations",
-  "Partner mode",
+  "Partner sharing",
   "Clinician export",
   "Priority support",
-  "Early access to new modes",
+  "Early access to new focus areas",
   "Advanced analytics",
-  "Custom phase notifications",
+  "Custom protocol notifications",
   "Unlimited data history",
 ];
 
@@ -218,10 +218,10 @@ const Premium = () => {
             className="font-light text-cream mt-8"
             style={{ fontSize: 32, lineHeight: 1.15 }}
           >
-            Unlock your full biology
+            Unlock your full protocol
           </h1>
           <p className="text-sm text-secondary-dim mt-4 max-w-[320px] leading-relaxed">
-            Pro members get advanced integrations, clinician tools, and partner mode.
+            Pro members get advanced integrations, clinician tools, and partner sharing.
           </p>
         </section>
 

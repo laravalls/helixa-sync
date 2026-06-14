@@ -292,7 +292,7 @@ export const BetaSignupModal = ({ isOpen, onClose }: BetaSignupModalProps) => {
               color: "#8B8478",
             }}
           >
-            95% of health data is based on male physiology. You've been tracking everything across 15 apps—Oura, Strava, MyFitnessPal, Clue, Google Calendar—but nothing connects them to your cycle.
+            You've been tracking everything across 15 apps—Oura, Strava, MyFitnessPal, Apple Health, Google Calendar—but nothing connects them into one picture.
           </p>
           <p
             style={{
@@ -303,7 +303,7 @@ export const BetaSignupModal = ({ isOpen, onClose }: BetaSignupModalProps) => {
               color: "#8B8478",
             }}
           >
-            Your hormones swing 400% across 28 days. Every workout plan, recovery protocol, and supplement stack ignores it.
+            Your HRV, sleep, and recovery swing day to day. Every workout plan, nutrition protocol, and supplement stack ignores it.
           </p>
         </div>
 
@@ -327,7 +327,7 @@ export const BetaSignupModal = ({ isOpen, onClose }: BetaSignupModalProps) => {
               color: "#F2EDE4",
             }}
           >
-            HelixA is the glue. One app that syncs your wearables, nutrition, calendar, and workouts to your menstrual cycle. Daily guidance on when to train hard, when to rest, when to schedule that board meeting.
+            HelixA is the glue. One agent that syncs your wearables, nutrition, calendar, and workouts into a single daily protocol — with optional cycle-aware guidance for those who track it.
           </p>
         </div>
 
@@ -438,8 +438,11 @@ export const BetaSignupModal = ({ isOpen, onClose }: BetaSignupModalProps) => {
             </span>
             <div className="flex flex-col" style={{ gap: 12 }}>
               {[
+                { value: "performance", label: "Performance & training (readiness-based workouts)" },
+                { value: "recovery", label: "Recovery & sleep optimization" },
+                { value: "longevity", label: "Longevity & biomarker tracking" },
+                { value: "cycle_sync", label: "Cycle Sync (optimizing workouts and recovery around your cycle)" },
                 { value: "ttc", label: "Trying to Conceive (fertility guidance)" },
-                { value: "cycle_sync", label: "Cycle Sync (optimizing workouts and recovery)" },
                 { value: "pcos", label: "PCOS Management (irregular cycles, symptom tracking)" },
                 { value: "exploring", label: "Just exploring (not sure yet)" },
               ].map((opt) => {
