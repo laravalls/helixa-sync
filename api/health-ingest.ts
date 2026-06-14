@@ -143,44 +143,10 @@ const calculateScore = (
   return { score, guidance: guidanceFor(score) };
 };
 
-// Recomputes and stores the daily score for a user/date using health_metrics
-// for that day plus a 7-day trailing baseline (excluding that day).
-const recomputeDailyScore = async (clerkUserId: string, date: string) => {
-  const dayRows = await sql`
-    SELECT metric, value FROM health_metrics
-    WHERE clerk_user_id = ${clerkUserId} AND date = ${date}
-  `;
-  const today: DailyMetrics = {};
-  for (const row of dayRows as { metric: string; value: string }[]) {
-    today[row.metric as keyof DailyMetrics] = Number(row.value);
-  }
-
-  const baselineRows = await sql`
-    SELECT metric, AVG(value) AS avg_value FROM health_metrics
-    WHERE clerk_user_id = ${clerkUserId}
-      AND metric IN ('hrv', 'resting_hr')
-      AND date >= (${date}::date - INTERVAL '7 days')
-      AND date < ${date}::date
-    GROUP BY metric
-  `;
-  const baseline: Baseline = {};
-  for (const row of baselineRows as { metric: string; avg_value: string }[]) {
-    baseline[row.metric as keyof Baseline] = Number(row.avg_value);
-  }
-
-  const { score, guidance } = calculateScore(today, baseline);
-
-  await sql`
-    INSERT INTO daily_scores (clerk_user_id, date, score, guidance, inputs, computed_at)
-    VALUES (${clerkUserId}, ${date}, ${score}, ${guidance}, ${JSON.stringify({ today, baseline })}, NOW())
-    ON CONFLICT (clerk_user_id, date) DO UPDATE SET
-      score = EXCLUDED.score,
-      guidance = EXCLUDED.guidance,
-      inputs = EXCLUDED.inputs,
-      computed_at = NOW()
-  `;
-
-  return { score, guidance };
+const addDays = (date: string, delta: number): string => {
+  const d = new Date(`${date}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + delta);
+  return d.toISOString().slice(0, 10);
 };
 
 // Ingest endpoint for Apple Health data. Authenticated via a per-user opaque
@@ -207,30 +173,108 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const payload = req.body as HealthAutoExportPayload;
   const aggregated = aggregateMetrics(payload);
 
+  // Flatten into parallel arrays for a single bulk upsert.
+  const dates: string[] = [];
+  const metrics: string[] = [];
+  const values: number[] = [];
+  const units: string[] = [];
   const affectedDates = new Set<string>();
+
   for (const [metric, byDate] of aggregated) {
     for (const [date, { value, unit }] of byDate) {
-      await sql`
-        INSERT INTO health_metrics (clerk_user_id, date, metric, value, unit, source)
-        VALUES (${clerkUserId}, ${date}, ${metric}, ${value}, ${unit}, 'apple_health')
-        ON CONFLICT (clerk_user_id, date, metric, source) DO UPDATE SET
-          value = EXCLUDED.value,
-          unit = EXCLUDED.unit,
-          updated_at = NOW()
-      `;
+      dates.push(date);
+      metrics.push(metric);
+      values.push(value);
+      units.push(unit);
       affectedDates.add(date);
     }
   }
 
-  const scoresByDate = new Map<string, { score: number; guidance: string }>();
-  for (const date of affectedDates) {
-    scoresByDate.set(date, await recomputeDailyScore(clerkUserId, date));
+  if (dates.length > 0) {
+    await sql`
+      INSERT INTO health_metrics (clerk_user_id, date, metric, value, unit, source)
+      SELECT ${clerkUserId}, d, m, v, u, 'apple_health'
+      FROM unnest(${dates}::date[], ${metrics}::text[], ${values}::numeric[], ${units}::text[])
+        AS t(d, m, v, u)
+      ON CONFLICT (clerk_user_id, date, metric, source) DO UPDATE SET
+        value = EXCLUDED.value,
+        unit = EXCLUDED.unit,
+        updated_at = NOW()
+    `;
   }
 
-  const latestDate = [...affectedDates].sort().pop();
-  const latest = latestDate
-    ? { date: latestDate, ...scoresByDate.get(latestDate)! }
-    : null;
+  let latest: { date: string; score: number; guidance: string } | null = null;
+
+  if (affectedDates.size > 0) {
+    const sortedDates = [...affectedDates].sort();
+    const minDate = addDays(sortedDates[0], -7);
+    const maxDate = sortedDates[sortedDates.length - 1];
+
+    // One query covers both "today's" metrics for every affected date and
+    // the 7-day trailing baseline window for each of them.
+    const rows = await sql`
+      SELECT date, metric, value FROM health_metrics
+      WHERE clerk_user_id = ${clerkUserId}
+        AND metric IN ('hrv', 'resting_hr', 'sleep_hours')
+        AND date >= ${minDate}::date
+        AND date <= ${maxDate}::date
+    `;
+
+    const byDate = new Map<string, DailyMetrics>();
+    for (const row of rows as { date: string; metric: string; value: string }[]) {
+      const day = String(row.date).slice(0, 10);
+      const entry = byDate.get(day) ?? {};
+      entry[row.metric as keyof DailyMetrics] = Number(row.value);
+      byDate.set(day, entry);
+    }
+
+    const scoreDates: string[] = [];
+    const scores: number[] = [];
+    const guidances: string[] = [];
+    const inputsJson: string[] = [];
+    const scoresByDate = new Map<string, { score: number; guidance: string }>();
+
+    for (const date of sortedDates) {
+      const today = byDate.get(date) ?? {};
+
+      const baseline: Baseline = { hrv: undefined, resting_hr: undefined };
+      const hrvVals: number[] = [];
+      const restingVals: number[] = [];
+      for (let i = 1; i <= 7; i++) {
+        const day = byDate.get(addDays(date, -i));
+        if (day?.hrv != null) hrvVals.push(day.hrv);
+        if (day?.resting_hr != null) restingVals.push(day.resting_hr);
+      }
+      if (hrvVals.length) baseline.hrv = hrvVals.reduce((a, b) => a + b, 0) / hrvVals.length;
+      if (restingVals.length) baseline.resting_hr = restingVals.reduce((a, b) => a + b, 0) / restingVals.length;
+
+      const { score, guidance } = calculateScore(today, baseline);
+      scoresByDate.set(date, { score, guidance });
+
+      scoreDates.push(date);
+      scores.push(score);
+      guidances.push(guidance);
+      inputsJson.push(JSON.stringify({ today, baseline }));
+    }
+
+    if (scoreDates.length > 0) {
+      await sql`
+        INSERT INTO daily_scores (clerk_user_id, date, score, guidance, inputs, computed_at)
+        SELECT ${clerkUserId}, d, s, g, i::jsonb, NOW()
+        FROM unnest(${scoreDates}::date[], ${scores}::int[], ${guidances}::text[], ${inputsJson}::text[])
+          AS t(d, s, g, i)
+        ON CONFLICT (clerk_user_id, date) DO UPDATE SET
+          score = EXCLUDED.score,
+          guidance = EXCLUDED.guidance,
+          inputs = EXCLUDED.inputs,
+          computed_at = NOW()
+      `;
+    }
+
+    const latestDate = sortedDates[sortedDates.length - 1];
+    const latestScore = scoresByDate.get(latestDate);
+    latest = latestScore ? { date: latestDate, ...latestScore } : null;
+  }
 
   return res.status(200).json({ ok: true, days: affectedDates.size, latest });
 }
