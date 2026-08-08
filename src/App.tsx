@@ -13,6 +13,7 @@ import Onboarding from "./pages/Onboarding.tsx";
 import Connections from "./pages/Connections.tsx";
 import Research from "./pages/Research.tsx";
 import Profile from "./pages/Profile.tsx";
+import CycleSettings from "./pages/CycleSettings.tsx";
 import Premium from "./pages/Premium.tsx";
 import Beta from "./pages/Beta.tsx";
 import Leads from "./pages/Leads.tsx";
@@ -45,6 +46,7 @@ const App = () => (
               <Route path="/stack" element={<StackDetail />} />
               <Route path="/recovery" element={<RecoveryDetail />} />
               <Route path="/connections" element={<Connections />} />
+              <Route path="/cycle-settings" element={<CycleSettings />} />
               <Route path="/research" element={<Research />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/premium" element={<Premium />} />

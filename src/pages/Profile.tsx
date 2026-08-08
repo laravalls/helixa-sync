@@ -54,7 +54,7 @@ const Profile = () => {
     : "Sync data to see recovery";
 
   const ROWS = [
-    { label: "Cycle data", hint: cycleHint, icon: undefined, onClick: () => navigate("/onboarding") },
+    { label: "Cycle data", hint: cycleHint, icon: undefined, onClick: () => navigate("/cycle-settings") },
     { label: "Connections", hint: "Manage integrations", icon: Plug, onClick: () => navigate("/connections") },
     { label: "Reminders", hint: "Manage popups", icon: Bell, onClick: () => navigate("/") },
     { label: "Subscription", hint: "Free plan", icon: Crown, onClick: () => navigate("/") },
