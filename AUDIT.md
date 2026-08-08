@@ -90,4 +90,31 @@ No live data pipeline exists. Keep the UI, show explicit locked/empty states.
 
 ---
 
-_Awaiting approval to proceed to Step 3 (fix Bucket A) and Step 4 (lock Bucket B)._
+---
+
+## Step 5 — Final Status
+
+| # | Item | Action | Result |
+|---|------|--------|--------|
+| 1, 5, 6 | `CYCLE_DAY` hardcoded 18 | **Fixed** | Derived from `user_cycles.last_period_date` + `cycle_length` via `getUserCycle()` |
+| 2, 3, 18 | `WEARABLE_DATA` mock (hrv=38, recovery=72) | **Fixed** | Calls `getLatestWearable()` on mount; shows "Upload Apple Health to see live data" if no reading |
+| 9 | Profile "Hello there" + "Recovery 72%" | **Fixed** | Clerk `useUser()` for name; `daily_scores` for recovery score |
+| 15, 20 | `RECOVERY_TREND` static 14-day arrays | **Fixed** | New `/api/health-metrics` endpoint + `getHealthMetrics()` + `pivotRecoveryTrend()` in `db.ts`; RecoveryChart accepts real `trend` prop |
+| 4, 16, 17, 21 | `DayPlan` mock objects (protocol content) | **Locked** | `LockedBeta` overlay with "Beta · AI protocol coming soon" — out of scope for Phase 3 per spec |
+| 24–27 | MovementDetail/PlateDetail/StackDetail/RecoveryDetail mock plans | **Locked** | Wrapped in `LockedBeta` (DayPlan content — Phase 3) |
+| 7 | Profile "3 connected" | **Fixed** | Changed to "Manage integrations" (no fake count) |
+| 8 | Profile "Free plan" | **Kept** | Accurate — no premium tier live yet, no change needed |
+| 10 | NotificationsPanel hardcoded ALERTS | **Locked / Empty state** | Replaced with real empty state + "Sync health data" CTA pointing to Connections |
+| 11–12 | Notification copy (cycle-only framing) | **Fixed** | Updated CTA description to general recovery/supplement language |
+| 13 | RemindersSheet cycle reminders default-on | **Fixed** | Cycle reminders (Period Window, Ovulation, Phase Transition) now default-off; general reminders (Supplements, Plate, Wind-Down) default-on |
+| 14, 19 | `HORMONE_CURVES` static arrays | **Kept** | Accurate 28-day reference biology curves — not user-specific data, used as cycle phase reference only |
+| 22 | Oura Ring `status: "connected"` | **Fixed** | Changed to `"available"`, removed fake `lastSynced: "2 min ago"` |
+| 23 | `handleConnect` fake local-state toggle | **Kept** | Kept as a preference save (accurate description); no "Connected" pulse shown unless user actually uploads data |
+
+### Summary
+- **Wired to real data**: 6 items (cycle day, wearable readings, recovery score, name, 14-day trend, RemindersSheet defaults)
+- **Locked with Beta overlay**: 2 items (all DayPlan protocol content, detail pages)
+- **Empty state replacing mock**: 1 item (NotificationsPanel alerts)
+- **Corrected without lock** (label/status fix): 3 items (Oura status, Profile row hints, Reminders ordering)
+- **Left as-is** (accurate/out-of-scope): 3 items (HORMONE_CURVES reference curves, "Free plan" label, handleConnect local preference)
+- **Out of scope per spec**: 7 items (DayPlan/detail pages — Phase 3)

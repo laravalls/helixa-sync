@@ -9,8 +9,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { RECOVERY_TREND } from "@/data/mockCycle";
-
-const TODAY = RECOVERY_TREND.hrv.length;
+import type { RecoveryTrend } from "@/data/mockCycle";
 
 type SeriesKey = "hrv" | "resting_hr" | "sleep_hours";
 
@@ -27,12 +26,12 @@ const SERIES: SeriesDef[] = [
   { key: "sleep_hours", letter: "SLEEP", full: "Sleep", color: "#6BBE8E" },
 ];
 
-const buildData = () =>
-  RECOVERY_TREND.hrv.map((_, i) => ({
+const buildData = (trend: RecoveryTrend) =>
+  trend.hrv.map((_, i) => ({
     day: i + 1,
-    hrv: RECOVERY_TREND.hrv[i],
-    resting_hr: RECOVERY_TREND.resting_hr[i],
-    sleep_hours: RECOVERY_TREND.sleep_hours[i],
+    hrv: trend.hrv[i],
+    resting_hr: trend.resting_hr[i],
+    sleep_hours: trend.sleep_hours[i],
   }));
 
 interface TooltipPayload {
@@ -87,8 +86,13 @@ const ChartTooltip = ({
 // General-purpose recovery trend chart: HRV, resting heart rate, and sleep
 // over the last two weeks. Replaces the cycle-specific hormone chart for
 // users in a non-cycle focus area.
-export const RecoveryChart = () => {
-  const data = useMemo(buildData, []);
+interface RecoveryChartProps {
+  trend?: RecoveryTrend;
+}
+
+export const RecoveryChart = ({ trend = RECOVERY_TREND }: RecoveryChartProps) => {
+  const today = trend.hrv.length;
+  const data = useMemo(() => buildData(trend), [trend]);
   const [hovered, setHovered] = useState<SeriesKey | null>(null);
 
   const opacityFor = (k: SeriesKey) =>
@@ -165,8 +169,8 @@ export const RecoveryChart = () => {
             {SERIES.map((s) => (
               <ReferenceDot
                 key={`today-${s.key}`}
-                x={TODAY}
-                y={RECOVERY_TREND[s.key][TODAY - 1]}
+                x={today}
+                y={trend[s.key][today - 1]}
                 r={6}
                 fill={s.color}
                 stroke="none"

@@ -26,33 +26,9 @@ interface ReminderDef {
 
 const REMINDERS: ReminderDef[] = [
   {
-    id: "period_window",
-    label: "Period Window",
-    description: "3 days before your next period starts.",
-    defaultTime: "08:00",
-    icon: <Droplet size={16} strokeWidth={1.5} />,
-    color: "#E07856",
-  },
-  {
-    id: "ovulation",
-    label: "Ovulation Day",
-    description: "Peak fertility window — morning of.",
-    defaultTime: "07:30",
-    icon: <Sparkles size={16} strokeWidth={1.5} />,
-    color: "#E8C16F",
-  },
-  {
-    id: "phase_transition",
-    label: "Phase Transition",
-    description: "When you move into a new cycle phase.",
-    defaultTime: "08:00",
-    icon: <Zap size={16} strokeWidth={1.5} />,
-    color: "#A088B5",
-  },
-  {
     id: "supplements",
     label: "Supplement Stack",
-    description: "Daily ping for your phase-tuned stack.",
+    description: "Daily ping to take your protocol stack.",
     defaultTime: "09:00",
     icon: <Bell size={16} strokeWidth={1.5} />,
     color: "#6BBE8E",
@@ -60,10 +36,34 @@ const REMINDERS: ReminderDef[] = [
   {
     id: "meals",
     label: "Plate Reminder",
-    description: "Phase-tuned meal nudges across the day.",
+    description: "Meal nudges across the day.",
     defaultTime: "12:00",
     icon: <Utensils size={16} strokeWidth={1.5} />,
     color: "#E8C16F",
+  },
+  {
+    id: "period_window",
+    label: "Period Window",
+    description: "3 days before your next period — for cycle tracking users.",
+    defaultTime: "08:00",
+    icon: <Droplet size={16} strokeWidth={1.5} />,
+    color: "#E07856",
+  },
+  {
+    id: "ovulation",
+    label: "Ovulation Day",
+    description: "Peak fertility window — morning of. Cycle tracking only.",
+    defaultTime: "07:30",
+    icon: <Sparkles size={16} strokeWidth={1.5} />,
+    color: "#E8C16F",
+  },
+  {
+    id: "phase_transition",
+    label: "Phase Transition",
+    description: "When you move into a new cycle phase. Cycle tracking only.",
+    defaultTime: "08:00",
+    icon: <Zap size={16} strokeWidth={1.5} />,
+    color: "#A088B5",
   },
   {
     id: "wind_down",
@@ -93,9 +93,11 @@ const loadState = (): ReminderState => {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) return JSON.parse(raw);
   } catch {}
+  // Only default non-cycle reminders on; cycle-specific ones require opt-in
+  const cycleOnly = new Set(["period_window", "ovulation", "phase_transition"]);
   const init: ReminderState = {};
   REMINDERS.forEach((r) => {
-    init[r.id] = { enabled: r.id === "period_window" || r.id === "ovulation", time: r.defaultTime };
+    init[r.id] = { enabled: !cycleOnly.has(r.id) && !r.premium, time: r.defaultTime };
   });
   return init;
 };

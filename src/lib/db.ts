@@ -187,6 +187,73 @@ export const getLatestWearable = async (): Promise<WearableReading | null> => {
   return lsGet<WearableReading>(wearableKey(device_id));
 };
 
+// ---------- HEALTH METRICS (Neon) ----------
+
+export interface HealthMetricRow {
+  date: string;
+  metric: string;
+  value: number;
+  unit: string;
+}
+
+export interface DailyScore {
+  date: string;
+  score: number;
+  guidance: string;
+}
+
+export interface HealthMetricsResult {
+  metrics: HealthMetricRow[];
+  latestScore: DailyScore | null;
+}
+
+const healthMetricsKey = (deviceId: string) => `helixa_health_metrics_${deviceId}`;
+
+export const getHealthMetrics = async (
+  getToken: () => Promise<string | null>,
+  days = 14,
+): Promise<HealthMetricsResult | null> => {
+  try {
+    const jwt = await getToken();
+    if (!jwt) return null;
+    const res = await fetch(`/api/health-metrics?days=${days}`, {
+      headers: { Authorization: `Bearer ${jwt}` },
+    });
+    if (!res.ok) return null;
+    const data = (await res.json()) as HealthMetricsResult;
+    const device_id = getDeviceId();
+    lsSet(healthMetricsKey(device_id), data);
+    return data;
+  } catch {
+    const device_id = getDeviceId();
+    return lsGet<HealthMetricsResult>(healthMetricsKey(device_id));
+  }
+};
+
+/** Pivot flat metric rows into the 14-day arrays RecoveryChart expects */
+export const pivotRecoveryTrend = (
+  metrics: HealthMetricRow[],
+  days = 14,
+): { hrv: number[]; resting_hr: number[]; sleep_hours: number[] } | null => {
+  const byDate = new Map<string, Record<string, number>>();
+  for (const row of metrics) {
+    const existing = byDate.get(row.date) ?? {};
+    existing[row.metric] = row.value;
+    byDate.set(row.date, existing);
+  }
+  const sorted = Array.from(byDate.entries())
+    .sort(([a], [b]) => a.localeCompare(b))
+    .slice(-days);
+  if (sorted.length === 0) return null;
+  return {
+    hrv: sorted.map(([, v]) => v["hrv"] ?? 0),
+    resting_hr: sorted.map(([, v]) => v["resting_hr"] ?? 0),
+    sleep_hours: sorted.map(([, v]) => v["sleep_hours"] ?? 0),
+  };
+};
+
+// ---------- WEARABLE READINGS (continued helpers) ----------
+
 // Helper: cast a remote/local WearableReading into the WEARABLE_DATA shape used
 // by mock components (keeps device label compatible with the empty-fallback UI).
 export const toWearableData = (

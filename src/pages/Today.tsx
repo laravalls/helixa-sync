@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@clerk/react";
+import { useUser } from "@clerk/react";
 import {
   Bell,
   Settings,
@@ -19,6 +21,7 @@ import {
   WEARABLE_DATA,
   type DayPlan,
 } from "@/data/mockCycle";
+import { LockedBeta } from "@/components/LockedBeta";
 import {
   Sheet,
   SheetContent,
@@ -30,11 +33,10 @@ import { RecoveryChart } from "@/components/RecoveryChart";
 import { CycleRing } from "@/components/CycleRing";
 import { NotificationsPanel } from "@/components/NotificationsPanel";
 import { BottomNav } from "@/components/BottomNav";
-import { getUserCycle } from "@/lib/db";
+import { getUserCycle, getLatestWearable, getHealthMetrics, pivotRecoveryTrend, type DailyScore } from "@/lib/db";
 import { BetaSignupModal } from "@/components/BetaSignupModal";
 
-const CYCLE_DAY = 18;
-const CYCLE_LENGTH = 28;
+const DEFAULT_CYCLE_LENGTH = 28;
 
 type ModeId =
   | "performance"
@@ -228,8 +230,19 @@ const DataCard = ({ label, metric, description, icon, onClick }: DataCardProps) 
   </button>
 );
 
+/** Derive cycle day from last_period_date + cycle_length */
+const computeCycleDay = (lastPeriodDate: string, cycleLength: number): number => {
+  const start = new Date(lastPeriodDate);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  start.setHours(0, 0, 0, 0);
+  const diff = Math.floor((today.getTime() - start.getTime()) / 86_400_000);
+  return ((diff % cycleLength) + cycleLength) % cycleLength + 1;
+};
+
 const Today = () => {
   const navigate = useNavigate();
+  const { getToken } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [activeMode, setActiveMode] = useState<ModeId>("performance");
   const [lockedSheet, setLockedSheet] = useState<ModeDef | null>(null);
@@ -238,6 +251,15 @@ const Today = () => {
   const [isBannerDismissed, setIsBannerDismissed] = useState(
     () => localStorage.getItem("helixa_beta_banner_dismissed") === "true",
   );
+
+  // Real data state
+  const [cycleDay, setCycleDay] = useState<number | null>(null);
+  const [cycleLength, setCycleLength] = useState(DEFAULT_CYCLE_LENGTH);
+  const [liveWearable, setLiveWearable] = useState<{ hrv: number | null; recovery_score: number | null; sleep_hours: number | null } | null>(null);
+  const [latestScore, setLatestScore] = useState<DailyScore | null>(null);
+  const [recoveryTrend, setRecoveryTrend] = useState<{ hrv: number[]; resting_hr: number[]; sleep_hours: number[] } | null>(null);
+  const hasWearableData = liveWearable !== null && (liveWearable.hrv !== null || liveWearable.recovery_score !== null);
+  const hasRecoveryTrend = recoveryTrend !== null && recoveryTrend.hrv.some((v) => v > 0);
 
   const dismissBetaBanner = () => {
     setIsBannerDismissed(true);
@@ -251,12 +273,38 @@ const Today = () => {
       if (cancelled) return;
       if (!existing || !existing.last_period_date) {
         navigate("/onboarding", { replace: true });
+        return;
+      }
+      const len = existing.cycle_length ?? DEFAULT_CYCLE_LENGTH;
+      setCycleLength(len);
+      setCycleDay(computeCycleDay(existing.last_period_date, len));
+    })();
+    return () => { cancelled = true; };
+  }, [navigate]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const [wearable, healthData] = await Promise.all([
+        getLatestWearable(),
+        getHealthMetrics(getToken),
+      ]);
+      if (cancelled) return;
+      if (wearable) {
+        setLiveWearable({
+          hrv: wearable.hrv,
+          recovery_score: wearable.recovery_score,
+          sleep_hours: wearable.sleep_hours,
+        });
+      }
+      if (healthData) {
+        setLatestScore(healthData.latestScore);
+        const trend = pivotRecoveryTrend(healthData.metrics);
+        if (trend) setRecoveryTrend(trend);
       }
     })();
-    return () => {
-      cancelled = true;
-    };
-  }, [navigate]);
+    return () => { cancelled = true; };
+  }, [getToken]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -275,8 +323,13 @@ const Today = () => {
       : activeMode === "cycle_sync"
         ? COLOR_BY_MODE.cycle_sync
         : COLOR_BY_MODE.performance;
-  const ringValue = isCycleMode ? CYCLE_DAY : WEARABLE_DATA.recovery_score;
-  const ringMax = isCycleMode ? CYCLE_LENGTH : 100;
+
+  const displayCycleDay = cycleDay ?? 0;
+  const recoveryScore = latestScore?.score ?? liveWearable?.recovery_score ?? null;
+  const displayHrv = liveWearable?.hrv ?? null;
+
+  const ringValue = isCycleMode ? displayCycleDay : (recoveryScore ?? 0);
+  const ringMax = isCycleMode ? cycleLength : 100;
   const ringUnitLabel = isCycleMode ? "Day" : "Readiness";
 
   const handleModeTap = (mode: ModeDef) => {
@@ -461,22 +514,30 @@ const Today = () => {
             <div className="mt-5 inline-flex items-center gap-3 bg-surface-2 border border-white/[0.06] rounded-full pl-3 pr-4 py-2">
               <span className="relative flex items-center justify-center w-2 h-2">
                 <span
-                  className="absolute inset-0 rounded-full bg-gold opacity-60 animate-ping"
+                  className={`absolute inset-0 rounded-full opacity-60 animate-ping ${hasWearableData ? "bg-gold" : "bg-white/20"}`}
                   style={{ animationDuration: "2s" }}
                 />
                 <span
-                  className="relative w-2 h-2 rounded-full bg-gold animate-breath-dot"
-                  style={{ boxShadow: "0 0 10px rgba(232,193,111,0.7)" }}
+                  className={`relative w-2 h-2 rounded-full ${hasWearableData ? "bg-gold" : "bg-white/20"}`}
+                  style={hasWearableData ? { boxShadow: "0 0 10px rgba(232,193,111,0.7)" } : undefined}
                 />
               </span>
-              <span
-                className="font-mono-data uppercase text-cream"
-                style={{ fontSize: 12, letterSpacing: "0.05em" }}
-              >
-                WEARABLE DEVICE DATA · HRV {WEARABLE_DATA.hrv} ·
-                <br />
-                RECOVERY {WEARABLE_DATA.recovery_score}
-              </span>
+              {hasWearableData ? (
+                <span
+                  className="font-mono-data uppercase text-cream"
+                  style={{ fontSize: 12, letterSpacing: "0.05em" }}
+                >
+                  {displayHrv !== null && <>HRV {Math.round(displayHrv)} · </>}
+                  {recoveryScore !== null && <>RECOVERY {Math.round(recoveryScore)}</>}
+                </span>
+              ) : (
+                <span
+                  className="font-mono-data uppercase text-tertiary-dim"
+                  style={{ fontSize: 11, letterSpacing: "0.05em" }}
+                >
+                  Upload Apple Health to see live data
+                </span>
+              )}
             </div>
           </section>
 
@@ -521,20 +582,22 @@ const Today = () => {
             </div>
           </section>
 
-          {/* ALERT */}
-          <section
-            key={`alert-${activeMode}`}
-            className="bg-surface-1 rounded-2xl p-5 border border-white/[0.06]"
-            style={{ borderLeft: "2px solid #E07856", animationDuration: "400ms" }}
-          >
-            <div
-              className="font-mono-data text-[10px] tracking-[0.32em] uppercase mb-2"
-              style={{ color: "#E07856" }}
+          {/* ALERT — content is mock until AI protocol is live */}
+          <LockedBeta label="Beta">
+            <section
+              key={`alert-${activeMode}`}
+              className="bg-surface-1 rounded-2xl p-5 border border-white/[0.06]"
+              style={{ borderLeft: "2px solid #E07856", animationDuration: "400ms" }}
             >
-              Alert
-            </div>
-            <p className="text-sm text-cream leading-relaxed">{data.alert}</p>
-          </section>
+              <div
+                className="font-mono-data text-[10px] tracking-[0.32em] uppercase mb-2"
+                style={{ color: "#E07856" }}
+              >
+                Alert
+              </div>
+              <p className="text-sm text-cream leading-relaxed">{data.alert}</p>
+            </section>
+          </LockedBeta>
 
           {/* RECOVERY STATUS */}
           <section className="bg-surface-1 rounded-2xl p-5 border border-white/[0.06]">
@@ -542,48 +605,62 @@ const Today = () => {
               Recovery Status
             </div>
             <div className="mt-4">
-              {isCycleMode ? <HormoneChart /> : <RecoveryChart />}
+              {isCycleMode ? (
+                <LockedBeta label="Sync data to unlock">
+                  <HormoneChart />
+                </LockedBeta>
+              ) : hasRecoveryTrend ? (
+                <RecoveryChart trend={recoveryTrend!} />
+              ) : (
+                <LockedBeta label="Upload Apple Health to unlock">
+                  <RecoveryChart />
+                </LockedBeta>
+              )}
             </div>
-            <p
-              key={`status-${activeMode}`}
-              className="text-xs text-secondary-dim mt-5 leading-relaxed animate-fade-in"
-              style={{ animationDuration: "400ms" }}
-            >
-              {data.status_readout}
-            </p>
+            {latestScore ? (
+              <p className="text-xs text-secondary-dim mt-5 leading-relaxed animate-fade-in" style={{ animationDuration: "400ms" }}>
+                {latestScore.guidance}
+              </p>
+            ) : (
+              <p className="text-xs text-tertiary-dim mt-5 leading-relaxed italic">
+                Sync your Apple Health data to see personalized recovery guidance.
+              </p>
+            )}
           </section>
 
-          {/* DATA CARDS */}
-          <section key={`cards-${activeMode}`} className="space-y-3 animate-fade-in" style={{ animationDuration: "400ms" }}>
-            <DataCard
-              label="Movement"
-              metric={`${data.movement.duration_min} MIN`}
-              description={data.movement.name}
-              icon={<Activity size={18} strokeWidth={1.5} />}
-              onClick={() => navigate(`/movement?mode=${activeMode}`)}
-            />
-            <DataCard
-              label="Plate"
-              metric="4 MEALS"
-              description={data.plate.key_nutrients.join(" · ")}
-              icon={<UtensilsCrossed size={18} strokeWidth={1.5} />}
-              onClick={() => navigate(`/plate?mode=${activeMode}`)}
-            />
-            <DataCard
-              label="Stack"
-              metric={`${data.stack.length} SUPPS`}
-              description={data.stack.map((s) => s.name).join(", ")}
-              icon={<Pill size={18} strokeWidth={1.5} />}
-              onClick={() => navigate(`/stack?mode=${activeMode}`)}
-            />
-            <DataCard
-              label="Recovery"
-              metric={`${data.recovery.sleep_target_h} HRS`}
-              description={`Wind down by ${data.recovery.wind_down_time}`}
-              icon={<Moon size={18} strokeWidth={1.5} />}
-              onClick={() => navigate(`/recovery?mode=${activeMode}`)}
-            />
-          </section>
+          {/* DATA CARDS — protocol content is beta (Phase 3: Claude-generated) */}
+          <LockedBeta label="Beta · AI protocol coming soon">
+            <section key={`cards-${activeMode}`} className="space-y-3 animate-fade-in" style={{ animationDuration: "400ms" }}>
+              <DataCard
+                label="Movement"
+                metric={`${data.movement.duration_min} MIN`}
+                description={data.movement.name}
+                icon={<Activity size={18} strokeWidth={1.5} />}
+                onClick={() => navigate(`/movement?mode=${activeMode}`)}
+              />
+              <DataCard
+                label="Plate"
+                metric="4 MEALS"
+                description={data.plate.key_nutrients.join(" · ")}
+                icon={<UtensilsCrossed size={18} strokeWidth={1.5} />}
+                onClick={() => navigate(`/plate?mode=${activeMode}`)}
+              />
+              <DataCard
+                label="Stack"
+                metric={`${data.stack.length} SUPPS`}
+                description={data.stack.map((s) => s.name).join(", ")}
+                icon={<Pill size={18} strokeWidth={1.5} />}
+                onClick={() => navigate(`/stack?mode=${activeMode}`)}
+              />
+              <DataCard
+                label="Recovery"
+                metric={`${data.recovery.sleep_target_h} HRS`}
+                description={`Wind down by ${data.recovery.wind_down_time}`}
+                icon={<Moon size={18} strokeWidth={1.5} />}
+                onClick={() => navigate(`/recovery?mode=${activeMode}`)}
+              />
+            </section>
+          </LockedBeta>
 
           {/* CYCLE RING — only shown for the opt-in cycle-tracking pillar */}
           {isCycleMode && (
@@ -592,7 +669,7 @@ const Today = () => {
                 Your Cycle
               </div>
               <div className="rounded-2xl border border-white/[0.06] bg-surface-1 p-5">
-                <CycleRing today={CYCLE_DAY} />
+                <CycleRing today={displayCycleDay} />
               </div>
             </section>
           )}

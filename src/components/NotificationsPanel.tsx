@@ -1,54 +1,24 @@
 import { useState } from "react";
-import { BellRing, Lock, X } from "lucide-react";
-import { toast } from "sonner";
+import { BellRing, Upload, X } from "lucide-react";
 import {
   Sheet,
   SheetContent,
   SheetTitle,
 } from "@/components/ui/sheet";
 import { RemindersSheet } from "@/components/RemindersSheet";
+import { useNavigate } from "react-router-dom";
 
 interface NotificationsPanelProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-interface AlertItem {
-  label: string;
-  color: string;
-  body: string;
-  time: string;
-}
-
-const ALERTS: AlertItem[] = [
-  {
-    label: "Phase Transition",
-    color: "#E07856",
-    body: "Late luteal dip incoming. Energy down for 3-4 days. Front-load your week.",
-    time: "2H Ago",
-  },
-  {
-    label: "Wearable Insight",
-    color: "#E8C16F",
-    body: "HRV down 12% from baseline. Ease today's workout to zone 1-2.",
-    time: "This Morning",
-  },
-  {
-    label: "Cycle Window",
-    color: "#6BBE8E",
-    body: "5 days until your next period. Stock up on iron-rich foods.",
-    time: "Yesterday",
-  },
-];
-
 export const NotificationsPanel = ({
   open,
   onOpenChange,
 }: NotificationsPanelProps) => {
   const [remindersOpen, setRemindersOpen] = useState(false);
-  const handlePremiumTap = () => {
-    toast("Coming with HelixA Pro", { duration: 2000 });
-  };
+  const navigate = useNavigate();
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -73,15 +43,15 @@ export const NotificationsPanel = ({
             </button>
           </div>
 
-          {/* Scrollable content */}
-          <div className="flex-1 overflow-y-auto px-5 pb-10">
+          <div className="flex-1 overflow-y-auto px-5 pb-10 space-y-4">
             {/* Manage reminders CTA */}
             <button
               type="button"
               onClick={() => setRemindersOpen(true)}
-              className="w-full mb-5 bg-surface-1 rounded-2xl p-4 border border-white/[0.06] flex items-center gap-3 hover:border-accent-soft transition-colors text-left"
+              className="w-full bg-surface-1 rounded-2xl p-4 border border-white/[0.06] flex items-center gap-3 hover:border-accent-soft transition-colors text-left"
             >
-              <div className="w-9 h-9 rounded-full border border-accent-soft flex items-center justify-center text-gold shrink-0"
+              <div
+                className="w-9 h-9 rounded-full border border-accent-soft flex items-center justify-center text-gold shrink-0"
                 style={{ boxShadow: "0 0 24px rgba(232,193,111,0.3)" }}
               >
                 <BellRing size={16} strokeWidth={1.5} />
@@ -91,56 +61,34 @@ export const NotificationsPanel = ({
                   Manage Reminders
                 </div>
                 <p className="text-xs text-secondary-dim mt-1 leading-relaxed">
-                  Pop-ups for periods, ovulation, phase shifts and more.
+                  Set up pings for recovery dips, supplement timing, and wind-down.
                 </p>
               </div>
             </button>
 
-            <div className="space-y-4">
-              {ALERTS.map((a) => (
-                <article
-                  key={a.label}
-                  className="bg-surface-1 rounded-2xl p-5 border border-white/[0.06]"
-                  style={{ borderLeft: `2px solid ${a.color}` }}
-                >
-                  <div
-                    className="font-mono-data text-[10px] tracking-[0.32em] uppercase mb-2"
-                    style={{ color: a.color }}
-                  >
-                    {a.label}
-                  </div>
-                  <p className="text-sm text-cream leading-relaxed">{a.body}</p>
-                  <div className="font-mono-data text-[10px] tracking-[0.28em] uppercase text-tertiary-dim mt-3">
-                    {a.time}
-                  </div>
-                </article>
-              ))}
-            </div>
-
-            {/* Divider */}
-            <div className="h-px bg-white/[0.06] my-8" />
-
-            {/* Locked row */}
-            <button
-              type="button"
-              onClick={handlePremiumTap}
-              className="w-full flex items-center gap-3 py-2 text-left hover:opacity-90 transition-opacity"
-            >
-              <Lock
-                size={16}
-                strokeWidth={1.5}
-                className="text-secondary-dim shrink-0"
-              />
-              <span className="flex-1 text-sm text-cream">
-                Daily phase alerts and wearable triggers
-              </span>
-              <span
-                className="font-mono-data uppercase text-gold border border-accent-soft rounded-full px-3 py-1 shrink-0"
-                style={{ fontSize: 10, letterSpacing: "0.28em" }}
+            {/* Empty state — no real alert pipeline yet */}
+            <div className="rounded-2xl border border-white/[0.06] bg-surface-1 p-6 flex flex-col items-center text-center gap-4">
+              <div className="w-10 h-10 rounded-full border border-white/[0.08] flex items-center justify-center text-tertiary-dim">
+                <BellRing size={18} strokeWidth={1.5} />
+              </div>
+              <div>
+                <p className="text-sm text-cream font-light">No alerts yet</p>
+                <p className="text-xs text-secondary-dim mt-2 leading-relaxed max-w-[260px]">
+                  Alerts appear once your wearable data is synced. Upload your Apple Health export from Connections to get started.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  onOpenChange(false);
+                  navigate("/connections");
+                }}
+                className="flex items-center gap-2 font-mono-data text-[10px] tracking-[0.28em] uppercase text-gold border border-accent-soft rounded-full px-4 py-2 hover:bg-white/[0.02] transition-colors"
               >
-                Premium
-              </span>
-            </button>
+                <Upload size={12} strokeWidth={1.5} />
+                Sync health data
+              </button>
+            </div>
           </div>
         </div>
         <RemindersSheet open={remindersOpen} onOpenChange={setRemindersOpen} />

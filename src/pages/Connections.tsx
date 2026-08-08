@@ -63,10 +63,9 @@ const CATEGORIES: Category[] = [
       {
         id: "oura",
         name: "Oura Ring",
-        status: "connected",
+        status: "available",
         Icon: Activity,
         description: "HRV · Recovery · Sleep · Resting HR",
-        lastSynced: "2 min ago",
         dataPoints: [
           "HRV and recovery score",
           "Sleep duration and quality",
